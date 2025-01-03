@@ -2,6 +2,7 @@
 import BtnPry from "../components/BtnPry.vue";
 import BtnSec from "../components/BtnSec.vue";
 import Header from "../components/Header.vue";
+import TagCon from "../components/TagCon.vue"
 import IconPlay from "../components/icons/IconPlay.vue";
 </script>
 
@@ -107,86 +108,78 @@ import IconPlay from "../components/icons/IconPlay.vue";
     <div class="container">
       <h2 style="text-align: center;">Empowering your Team</h2>
       <div class="flxwrap">
-        <div class="tag-container">
-          <div class="square"></div>
-          <div class="mintxt">
-            <div class="mintxthd">
-              <span>Strengthen Connections</span> <p>Elevate performance</p>
-            </div>
-            <p>Cultivate lasting customer relationships with Relate+'s powerful CRM tools</p>
-          </div>
-        </div>
-        
-        <div class="tag-container">
-          <div class="square"></div>
-          <div class="mintxt">
-            <div class="mintxthd">
-              <span>Strengthen Connections</span> <p>Elevate performance</p>
-            </div>
-            <p>Cultivate lasting customer relationships with Relate+'s powerful CRM tools</p>
-          </div>
-        </div>
+        <TagCon cont="Cultivate lasting customer relationships with Relate+'s powerful CRM tools" hd="Strengthen Connections" tag="Elevate performance"/>
+        <TagCon cont="Empower your team with Relate+'s intuitive CRM tools" hd="Unlock Insights" tag="Elevate performance"/>
+        <TagCon cont="Streamline your workflows and unlock new growth opportunities with Relate+" hd="Foster Collaboration" tag="Driver results"/>
+        <TagCon cont="Relate+ is the comprehensive CRM solution you need to thrive in today's competitive market" hd="Enhance Visibility" tag="Boost productivity"/>
+        <TagCon cont="Experience the transformative power of Relate+, the all-in-one CRM solution that elevates your business" hd="Optimize Efficiency" tag="Accelerate success"/>
+        <TagCon cont="Unlock the full potential of your customer data with Relate+" hd="Foster Collaboration" tag="Drive Growth"/>
       </div>
+    </div>
+
+    <!-- review -->
+    <div class="container"><div class="revw">
+      <img src="../assets/images/Male-User.png" alt="user image"/>
+
+      <span style="color: #aaa; text-align: center; line-height: 1.8rem">Relate+ has transformed our sales team. We're closing more deals and providing better customer service than ever before.</span>
+
+      <div class="stars">
+        <img src="../assets/icons/star.svg"/>
+        <img src="../assets/icons/star.svg"/>
+        <img src="../assets/icons/star.svg"/>
+        <img src="../assets/icons/star.svg"/>
+        <img src="../assets/icons/star.svg"/>
+      </div>
+    </div></div>
+
+    
+    <div class="container flx">
+      <div class="multi-lvltxt-wrapper">
+        <h2 style="color: #1E1D20;">Relate+ is more than Just a CRM software</h2>
+        <span style="color: #939393;">
+          It's a powerful tool that helps you build stronger relationships, drive sales, and achieve your business goals
+        </span>
+
+        <BtnSec link="./sign-up" msg="Join for Free" />
+      </div>
+
+      <img src="../assets/images/relate-plus-business-set.png" style="max-width: 600px"/>
     </div>
   </main>
 </template>
 <style scoped>
+.revw {
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #000;
+  border-radius: 5px;
+  padding: 20px;
+  margin: 50px 0;
+}
+
+.revw img {
+  width: 90px;
+}
+
+.stars {
+  display: flex;
+  gap: 5px;
+}
+
+.stars img {
+  width: 50px;
+}
+
 .flxwrap {
   display: flex;
   flex-wrap: wrap;
   flex: 1 1 auto;
   align-items: center;
+  gap: 20px;
   justify-content: space-between;
-}
-
-.tag-container {
-  border: 1px solid #000;
-  width: 525px;
-  padding: 25px;
-  display: flex;
-  gap: 15px;
-  border-radius: 5px;
-  align-items: center;
-}
-
-.tag-container:hover {
-  background-color: #000;
-}
-
-.square {
-  content: "";
-  background-color: #aaa;
-  width: 65px;
-  height: 65px;
-}
-
-.mintxt {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex: 1;
-}
-
-.mintxthd {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.mintxt > p {
-  color: #aaa;
-}
-
-.tag-container:hover > .mintxt > .mintxthd > span {
-  color: #fff;
-}
-
-.mintxthd > span {
-  color: #000;
-}
-
-.mintxthd > p {
-  color: #FFC107;
 }
 
 .hero {
