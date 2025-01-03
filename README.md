@@ -27,3 +27,4 @@ npm run dev
 ```sh
 npm run build
 ```
+# Relate+ is an all in one CRM app for SMEs
