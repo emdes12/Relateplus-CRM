@@ -106,7 +106,7 @@ import IconPlay from "../components/icons/IconPlay.vue";
 
     <!-- empowering team -->
     <div class="container">
-      <h2 style="text-align: center;">Empowering your Team</h2>
+      <h2 style="text-align: center; margin-bottom: 20px;">Empowering your Team</h2>
       <div class="flxwrap">
         <TagCon cont="Cultivate lasting customer relationships with Relate+'s powerful CRM tools" hd="Strengthen Connections" tag="Elevate performance"/>
         <TagCon cont="Empower your team with Relate+'s intuitive CRM tools" hd="Unlock Insights" tag="Elevate performance"/>
@@ -144,6 +144,17 @@ import IconPlay from "../components/icons/IconPlay.vue";
       </div>
 
       <img src="../assets/images/relate-plus-business-set.png" style="max-width: 600px"/>
+    </div>
+
+    <div class="container flx" style="padding: 50px 0 30px 0;">
+      <span style="color: #aaa; width: 169px; font-size: 1rem;">© 2024 Relato, Inc.
+        All rights reserved.</span>
+
+        <div class="stars">
+          <img src="../assets/icons/Facebook.png" alt="facebook">
+          <img src="../assets/icons/Instagram.png" alt="instagram">
+          <img src="../assets/icons/TwitterX.png" alt="twitterX">
+        </div>
     </div>
   </main>
 </template>
