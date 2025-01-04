@@ -64,7 +64,7 @@ import IconPlay from "../components/icons/IconPlay.vue";
           The CRM that simplifies customer interactions, streamlines sales processes, and delivers actionable insights.
         </span>
 
-        <BtnSec link="./sign-up" msg="Get started for free" />
+        <BtnSec link="/signup" msg="Get started for free" />
       </div>
 
       <img src="@/assets/images/relate+ mockup1.png" style=""/>
@@ -78,7 +78,7 @@ import IconPlay from "../components/icons/IconPlay.vue";
             Building strong and lasting relationships with customers
           </span>
 
-          <BtnPry link="./sign-up" msg="Start Now!" />
+          <BtnPry link="/signup" msg="Start Now!" />
         </div>
         <div class="flx">
           <img src="@/assets/images/relate+ mockup2.png"/>
@@ -86,7 +86,7 @@ import IconPlay from "../components/icons/IconPlay.vue";
 
             <h2 style="color: #FFC107; text-align: center;">Interacting and close more deals!</h2>
 
-            <BtnPry link="./sign-up" msg="Start Building" />
+            <BtnPry link="/signup" msg="Start Building" />
           </div>
         </div>
       </div>
@@ -128,7 +128,7 @@ import IconPlay from "../components/icons/IconPlay.vue";
           It's a powerful tool that helps you build stronger relationships, drive sales, and achieve your business goals
         </span>
 
-        <BtnSec link="./sign-up" msg="Join for Free" />
+        <BtnSec link="/signup" msg="Join for Free" />
       </div>
 
       <img src="../assets/images/relate-plus-business-set.png" style="max-width: 600px"/>
