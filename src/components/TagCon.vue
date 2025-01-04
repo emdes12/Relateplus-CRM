@@ -18,14 +18,14 @@ defineProps({
 
 <template>
     <div class="tag-container">
-          <div class="square"></div>
-          <div class="mintxt">
-            <div class="mintxthd">
-              <span>{{ hd }}</span> <p>{{ tag }}</p>
-            </div>
-            <p>{{ cont }}</p>
-          </div>
+      <div class="square"></div>
+      <div class="mintxt">
+        <div class="mintxthd">
+          <span>{{ hd }}</span> <p>{{ tag }}</p>
         </div>
+        <p>{{ cont }}</p>
+      </div>
+    </div>
 </template>
 
 <style scoped>
@@ -33,6 +33,7 @@ defineProps({
   border: 1px solid #000;
   width: 575px;
   padding: 25px;
+  flex: 1 1 auto;
   display: flex;
   gap: 15px;
   border-radius: 5px;

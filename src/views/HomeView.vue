@@ -17,7 +17,7 @@ import IconPlay from "../components/icons/IconPlay.vue";
             Connect Deeper. <br />
             Grow Faster.
           </h1>
-          <span
+          <span style="text-align: center"
             >Your all-in-one CRM for building meaningful relationships and
             driving sales.</span
           >
@@ -28,27 +28,15 @@ import IconPlay from "../components/icons/IconPlay.vue";
       </div>
     </div>
 
-    <div
-      class="container"
-      style="
+    <div class="container" style="
         display: flex;
         align-items: center;
         justify-content: center;
         padding-top: 50px;
-        padding-bottom: 50px;
-      "
-    >
+        padding-bottom: 50px;">
       <!-- content to be changed to YT video -->
       <div
-        style="
-          width: 1013px;
-          height: 608px;
-          flex-shrink: 0;
-          background: #d9d9d9;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        "
+        style="ytvid"
       >
         <div
           style="
@@ -79,12 +67,12 @@ import IconPlay from "../components/icons/IconPlay.vue";
         <BtnSec link="./sign-up" msg="Get started for free" />
       </div>
 
-      <img src="@/assets/images/relate+ mockup1.png" style="max-width: 600px"/>
+      <img src="@/assets/images/relate+ mockup1.png" style=""/>
     </div>
 
     <div class="container" style="padding: 50px 0;">
       <div class="capman">
-        <div class="multi-lvltxt-wrapper" style="margin: 0 0 60px 50px;">
+        <div class="multi-lvltxt-wrapper capm" style="margin: 0 0 60px 50px;">
           <h2 style="color: #fff;">Seamless Interaction with Customers</h2>
           <span style="color: #939393;">
             Building strong and lasting relationships with customers
@@ -106,7 +94,7 @@ import IconPlay from "../components/icons/IconPlay.vue";
 
     <!-- empowering team -->
     <div class="container">
-      <h2 style="text-align: center; margin-bottom: 20px;">Empowering your Team</h2>
+      <h2 style="text-align: center; margin-bottom: 20px; ">Empowering your Team</h2>
       <div class="flxwrap">
         <TagCon cont="Cultivate lasting customer relationships with Relate+'s powerful CRM tools" hd="Strengthen Connections" tag="Elevate performance"/>
         <TagCon cont="Empower your team with Relate+'s intuitive CRM tools" hd="Unlock Insights" tag="Elevate performance"/>
@@ -187,7 +175,6 @@ import IconPlay from "../components/icons/IconPlay.vue";
 .flxwrap {
   display: flex;
   flex-wrap: wrap;
-  flex: 1 1 auto;
   align-items: center;
   gap: 20px;
   justify-content: space-between;
@@ -209,6 +196,11 @@ import IconPlay from "../components/icons/IconPlay.vue";
   gap: 30px;
 }
 
+.flx img {
+  width: 100%;
+  max-width: 600px;
+}
+
 .multi-lvltxt-wrapper {
   display: flex;
   flex-direction: column;
@@ -217,6 +209,8 @@ import IconPlay from "../components/icons/IconPlay.vue";
   width: 560px;
   min-width: 360px;
 }
+
+
 
 .bn-text {
   padding-top: 208px;
@@ -252,5 +246,50 @@ span {
   background-size: contain;
   background-position: top center;
   padding-top: 280px;
+}
+
+.ytvid {
+  width: 1013px;
+  height: 608px;
+  flex-shrink: 0;
+  background: #d9d9d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 850px) {
+  .flx {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  span {
+    font-size: 16px;
+  }
+
+  .ytvid {
+    width: 100%;
+    height: 400px;
+  }
+
+  .multi-lvltxt-wrapper {
+    width: 100%;
+  }
+
+  .multi-lvltxt-wrapper.capm {
+    width: 60%;
+  }
+
+  .capman {
+    padding-top: 80px;
+  }
+}
+
+@media (max-width: 500px) {
+  .capman {
+    padding-top: 50px;
+  }
 }
 </style>

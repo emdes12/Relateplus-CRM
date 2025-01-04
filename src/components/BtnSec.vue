@@ -33,4 +33,10 @@ defineProps({
   line-height: normal;
   text-decoration: none;
 }
+
+@media (max-width: 750px) {
+  .btn-primary {
+    font-size: 20px;
+  }
+}
 </style>
