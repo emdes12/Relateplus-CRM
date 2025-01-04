@@ -135,7 +135,7 @@ import IconPlay from "../components/icons/IconPlay.vue";
     </div>
 
     <div class="container flx" style="padding: 50px 0 30px 0;">
-      <span style="color: #aaa; width: 169px; font-size: 1rem;">© 2024 Relato, Inc.
+      <span style="color: #aaa; width: 169px; font-size: 1rem;">© 2024 Relate+ Inc.
         All rights reserved.</span>
 
         <div class="stars">
@@ -289,7 +289,7 @@ span {
 
 @media (max-width: 500px) {
   .capman {
-    padding-top: 50px;
-  }
+    background: #fff;
+  }9
 }
 </style>
