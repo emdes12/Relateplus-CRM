@@ -290,6 +290,6 @@ span {
 @media (max-width: 500px) {
   .capman {
     background: #fff;
-  }9
+  }
 }
 </style>
