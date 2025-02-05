@@ -7,17 +7,24 @@ defineProps({
   },
   link: {
     type: String,
-    required: true,
+    required: false,
   },
+  wdt: {
+    type: String,
+    required: false,
+  },
+  onSubmitToCreate: Function,
 });
 </script>
 
 <template>
-  <RouterLink class="btn-primary" :to="link">{{ msg }}</RouterLink>
+  <RouterLink v-show="link" class="btn-primary" :style="'width: ' + wdt" :to="link">{{ msg }}</RouterLink>
+  <button v-show="!link" class="btn-primary" type="button" @click="onSubmitToCreate" :style="'width: ' + wdt">{{ msg }}</button>
 </template>
 
 <style scoped>
 .btn-primary {
+  border: none;
   display: flex;
   padding: 17px 33px;
   justify-content: center;
@@ -32,11 +39,12 @@ defineProps({
   font-weight: 700;
   line-height: normal;
   text-decoration: none;
+  cursor: pointer;
 }
 
 @media (max-width: 750px) {
   .btn-primary {
-    font-size: 20px;
+    font-size: 28px;
   }
 }
 </style>
