@@ -36,7 +36,7 @@ defineProps({
 
 @media (max-width: 750px) {
   .btn-primary {
-    font-size: 20px;
+    font-size: 28px;
   }
 }
 </style>

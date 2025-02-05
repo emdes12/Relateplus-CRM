@@ -1,6 +1,36 @@
 <script setup>
+import { ref } from "vue"
 import Logo from "../../assets/icons/r+.svg"
+import BtnPry from "../../components/BtnPry.vue"
+import FormInput from "../../components/FormInput.vue"
 import AuthImg from "../../assets/images/auth-sign-up.png"
+import MailIcon from "../../assets/icons/envelop.svg"
+import HidePassIcon from "../../assets/icons/hide.svg"
+import ShowPassIcon from "../../assets/icons/lock.svg"
+import PassIcon from "../../assets/icons/lock.svg"
+
+let emailValue = ref("")
+let passValue = ref("")
+let IconPassValue = ref(HidePassIcon)
+let passwordText = ref("password")
+let isShowPassword = ref(false)
+
+const createAccount = () => {
+  console.log(emailValue.value)
+  console.log(passValue.value)
+}
+
+const showPassword = () => {
+  if(!isShowPassword.value){
+    IconPassValue.value = ShowPassIcon
+    passwordText.value = "text"
+    isShowPassword.value = true
+  } else {
+    IconPassValue.value = HidePassIcon
+    passwordText.value = "password"
+    isShowPassword.value = false
+  }
+}
 </script>
 
 <template>
@@ -12,9 +42,9 @@ import AuthImg from "../../assets/images/auth-sign-up.png"
         <h2>We're excited you're here</h2>
         <h4>Start by creating a free account</h4>
         <form action="#">
-          <input type="text"><br>
-          <input type="text"><br>
-          <button type="submit">Sign Up</button>
+          <FormInput inpType="email" v-model="emailValue" inpPlaceholder="Email:" :inpIcon="MailIcon" />
+          <FormInput :inpType="passwordText" v-model="passValue" inpPlaceholder="Password:" :passChangeAction="showPassword" :passShowIcon="IconPassValue" :inpIcon="PassIcon" />
+          <BtnPry msg="Create account" :onSubmitToCreate="createAccount" wdt="100%"/>
         </form>
       </div>
       <div class="img">
@@ -75,7 +105,7 @@ img.imag {
 
 .form-container {
   background-color: white;
-  width: 627px;
+  width: 527px;
   gap: 20px;
   border-radius: 32px;
   height: 602px;
@@ -84,6 +114,15 @@ img.imag {
   justify-content: space-between;
   flex-direction: column;
   padding: 42px 50px;
+}
+
+form {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  flex-direction: column;
 }
 
 @media (max-width: 700px) {
