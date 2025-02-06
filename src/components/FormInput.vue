@@ -11,7 +11,7 @@ defineProps({
     },
     inpPlaceholder: {
         type: String,
-        required: true,
+        required: false,
     },
     inpIcon: {
         type: String,
@@ -32,7 +32,7 @@ const emit = defineEmits(["update:modelValue"])
 
 <template>
     <label>
-        <img :src="inpIcon" class="inp-icon"/>
+        <img v-show="inpIcon" :src="inpIcon" class="inp-icon"/>
         <input :type="inpType" :value="modelValue" @input="emit('update:modelValue', $event.target.value)" :placeholder="inpPlaceholder" />
         <img v-show="passShowIcon" :src="passShowIcon" @click="passChangeAction" class="show-icon"/>
     </label>
@@ -55,7 +55,7 @@ label {
 .show-icon {
     position: absolute;
     top: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(50%, -50%);
     right: 30px;
     width: 30px;
     cursor: pointer;

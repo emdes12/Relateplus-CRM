@@ -14,10 +14,12 @@ let passValue = ref("")
 let IconPassValue = ref(HidePassIcon)
 let passwordText = ref("password")
 let isShowPassword = ref(false)
+let agreedlValue = ref(true)
 
 const createAccount = () => {
   console.log(emailValue.value)
   console.log(passValue.value)
+  console.log(agreedlValue.value)
 }
 
 const showPassword = () => {
@@ -44,8 +46,17 @@ const showPassword = () => {
         <form action="#">
           <FormInput inpType="email" v-model="emailValue" inpPlaceholder="Email:" :inpIcon="MailIcon" />
           <FormInput :inpType="passwordText" v-model="passValue" inpPlaceholder="Password:" :passChangeAction="showPassword" :passShowIcon="IconPassValue" :inpIcon="PassIcon" />
+          <div class="rdlf">
+            <span><FormInput inpType="checkbox" v-model="agreedlValue" /></span> <p>agreed to the <RouterLink to="#">Terms and Conditions</RouterLink></p>
+          </div>
           <BtnPry msg="Create account" :onSubmitToCreate="createAccount" wdt="100%"/>
         </form>
+        <span>Continue with:</span>
+        <div class="other-auth">
+          <span><img src="../../assets/images/Google-auth.png" /></span>
+          <span><img src="../../assets/images/Facebook-auth.png" /></span>
+          <span><img src="../../assets/images/Apple-auth.png" /></span>
+        </div>
       </div>
       <div class="img">
         <img class="imag" :src="AuthImg" />
@@ -60,6 +71,45 @@ const showPassword = () => {
   background-color: var(--auth-bg);
   width: 100%;
   height: 100vh;
+}
+
+.rdlf {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.rdlf span {
+  width: 30px;
+}
+
+.rdlf p {
+  flex: 1;
+}
+
+.other-auth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.other-auth span {
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  border: 2px solid black;
+  border-radius: 10px;
+  flex: 1 1 auto;
+}
+
+.other-auth span img {
+  width: 40px;
+  height: 40px;
 }
 
 .logo {
@@ -121,17 +171,18 @@ form {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 30px;
+  gap: 10px;
   flex-direction: column;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 800px) {
   .img {
     display: none;
   }
 
   .form-container {
     width: 100%;
+    padding: 40px 20px;
   }
 }
 </style>
