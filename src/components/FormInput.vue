@@ -48,28 +48,28 @@ label {
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
-    left: 30px;
-    width: 30px;
+    left: 25px;
+    width: 25px;
 }
 
 .show-icon {
     position: absolute;
     top: 50%;
     transform: translate(50%, -50%);
-    right: 30px;
-    width: 30px;
+    right: 25px;
+    width: 25px;
     cursor: pointer;
 }
 
 input {
     border: 1px solid black;
     width: 100%;
-    padding: 18px 50px;
+    padding: 13px 50px;
     color: #777676;
     text-align: left;
     border-radius: 10px;
     font-family: "League Spartan";
-    font-size: 28px;
+    font-size: 20px;
     font-style: normal;
     font-weight: 200;
     line-height: normal;

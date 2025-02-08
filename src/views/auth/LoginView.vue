@@ -3,7 +3,7 @@ import { ref } from "vue"
 import Logo from "../../assets/icons/r+.svg"
 import BtnPry from "../../components/BtnPry.vue"
 import FormInput from "../../components/FormInput.vue"
-import AuthImg from "../../assets/images/auth-sign-up.png"
+import AuthImg from "../../assets/images/auth-sign-in.png"
 import MailIcon from "../../assets/icons/envelop.svg"
 import HidePassIcon from "../../assets/icons/hide.svg"
 import ShowPassIcon from "../../assets/icons/lock.svg"
@@ -16,7 +16,7 @@ let passwordText = ref("password")
 let isShowPassword = ref(false)
 let agreedlValue = ref(true)
 
-const createAccount = () => {
+const submitLogin = () => {
   console.log(emailValue.value)
   console.log(passValue.value)
   console.log(agreedlValue.value)
@@ -40,18 +40,21 @@ const showPassword = () => {
     <div class="container">
       <div class="logo"><img alt="logo" src="@/assets/logo2.svg" /></div>
     <main class="content">
+      <div class="img">
+        <img class="imag" :src="AuthImg" />
+      </div>
       <div class="form-container">
         <div class="auth-methods">
-          <h3>We're excited you're here</h3>
-          <h4>Start by creating a free account</h4>
+          <h3>Welcome back</h3>
+          <h4>Sign in now!</h4>
         </div>
         <form action="#">
           <FormInput inpType="email" v-model="emailValue" inpPlaceholder="Email:" :inpIcon="MailIcon" />
           <FormInput :inpType="passwordText" v-model="passValue" inpPlaceholder="Password:" :passChangeAction="showPassword" :passShowIcon="IconPassValue" :inpIcon="PassIcon" />
           <div class="rdlf">
-            <span><FormInput inpType="checkbox" v-model="agreedlValue" /></span> <p>agreed to the <RouterLink to="#">Terms and Conditions</RouterLink></p>
+            <!-- <span><FormInput inpType="checkbox" v-model="agreedlValue" /></span> <p>agreed to the <RouterLink to="#">Terms and Conditions</RouterLink></p> -->
           </div>
-          <BtnPry msg="Create account" :onSubmitToCreate="createAccount" wdt="100%"/>
+          <BtnPry msg="Login" :onSubmitToCreate="submitLogin" wdt="100%"/>
         </form>
         <div class="auth-methods">
           <span>Continue with:</span>
@@ -61,10 +64,7 @@ const showPassword = () => {
             <span><img src="../../assets/images/Apple-auth.png" /></span>
           </div>
         </div>
-        <p>Already have an account? <RouterLink to="/login">Login</RouterLink></p>
-      </div>
-      <div class="img">
-        <img class="imag" :src="AuthImg" />
+        <p>Don't have an account? <RouterLink to="/signup">Signup</RouterLink></p>
       </div>
     </main>
     </div>
@@ -98,10 +98,10 @@ const showPassword = () => {
 .auth-methods {
   display: flex;
   width: 100%;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  flex-direction: column;
 }
 
 .other-auth {
@@ -116,8 +116,7 @@ const showPassword = () => {
   display: grid;
   place-items: center;
   padding: 10px;
-  border: 1px solid black;
-  cursor: pointer;
+  border: 2px solid black;
   border-radius: 10px;
   flex: 1 1 auto;
 }
@@ -151,8 +150,8 @@ main.content {
 
 .img {
   max-width: 400px;
-  border-top-right-radius: 32px;
-  border-bottom-right-radius: 32px;
+  border-top-left-radius: 32px;
+  border-bottom-left-radius: 32px;
   height: 494px;
   overflow: hidden;
 }
@@ -174,7 +173,7 @@ img.imag {
   align-items: center;
   justify-content: space-between;
   flex-direction: column;
-  padding: 42px 50px;
+  padding: 40px;
 }
 
 form {

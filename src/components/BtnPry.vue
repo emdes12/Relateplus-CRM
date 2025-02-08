@@ -42,9 +42,18 @@ defineProps({
   cursor: pointer;
 }
 
+button.btn-primary {
+  padding: 13px 33px;
+  font-size: 28px;
+}
+
 @media (max-width: 750px) {
   .btn-primary {
     font-size: 28px;
+  }
+
+  button.btn-primary {
+    font-size: 20px;
   }
 }
 </style>
