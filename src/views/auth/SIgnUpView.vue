@@ -41,8 +41,10 @@ const showPassword = () => {
       <div class="logo"><img alt="logo" src="@/assets/logo2.svg" /></div>
     <main class="content">
       <div class="form-container">
-        <h2>We're excited you're here</h2>
-        <h4>Start by creating a free account</h4>
+        <div class="auth-methods">
+          <h3>We're excited you're here</h3>
+          <h4>Start by creating a free account</h4>
+        </div>
         <form action="#">
           <FormInput inpType="email" v-model="emailValue" inpPlaceholder="Email:" :inpIcon="MailIcon" />
           <FormInput :inpType="passwordText" v-model="passValue" inpPlaceholder="Password:" :passChangeAction="showPassword" :passShowIcon="IconPassValue" :inpIcon="PassIcon" />
@@ -59,6 +61,7 @@ const showPassword = () => {
             <span><img src="../../assets/images/Apple-auth.png" /></span>
           </div>
         </div>
+        <p>Already have an account? <RouterLink to="/login">Login</RouterLink></p>
       </div>
       <div class="img">
         <img class="imag" :src="AuthImg" />
@@ -112,15 +115,16 @@ const showPassword = () => {
 .other-auth span {
   display: grid;
   place-items: center;
-  padding: 15px;
-  border: 2px solid black;
+  padding: 10px;
+  border: 1px solid black;
+  cursor: pointer;
   border-radius: 10px;
   flex: 1 1 auto;
 }
 
 .other-auth span img {
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
 }
 
 .logo {
@@ -134,7 +138,7 @@ const showPassword = () => {
   grid-template-rows: 100px 1fr;
 }
 
-h2, h4 {
+h3, h4 {
   text-align: center;
   width: 100%;
 }

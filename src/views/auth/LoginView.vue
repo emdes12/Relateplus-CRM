@@ -44,13 +44,15 @@ const showPassword = () => {
         <img class="imag" :src="AuthImg" />
       </div>
       <div class="form-container">
-        <h3>Welcome back</h3>
-        <h4>Sign in now!</h4>
+        <div class="auth-methods">
+          <h3>Welcome back</h3>
+          <h4>Sign in now!</h4>
+        </div>
         <form action="#">
           <FormInput inpType="email" v-model="emailValue" inpPlaceholder="Email:" :inpIcon="MailIcon" />
           <FormInput :inpType="passwordText" v-model="passValue" inpPlaceholder="Password:" :passChangeAction="showPassword" :passShowIcon="IconPassValue" :inpIcon="PassIcon" />
           <div class="rdlf">
-            <span><FormInput inpType="checkbox" v-model="agreedlValue" /></span> <p>agreed to the <RouterLink to="#">Terms and Conditions</RouterLink></p>
+            <!-- <span><FormInput inpType="checkbox" v-model="agreedlValue" /></span> <p>agreed to the <RouterLink to="#">Terms and Conditions</RouterLink></p> -->
           </div>
           <BtnPry msg="Login" :onSubmitToCreate="submitLogin" wdt="100%"/>
         </form>
@@ -62,6 +64,7 @@ const showPassword = () => {
             <span><img src="../../assets/images/Apple-auth.png" /></span>
           </div>
         </div>
+        <p>Don't have an account? <RouterLink to="/signup">Signup</RouterLink></p>
       </div>
     </main>
     </div>
@@ -112,15 +115,15 @@ const showPassword = () => {
 .other-auth span {
   display: grid;
   place-items: center;
-  padding: 15px;
+  padding: 10px;
   border: 2px solid black;
   border-radius: 10px;
   flex: 1 1 auto;
 }
 
 .other-auth span img {
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
 }
 
 .logo {
@@ -170,7 +173,7 @@ img.imag {
   align-items: center;
   justify-content: space-between;
   flex-direction: column;
-  padding: 42px 50px;
+  padding: 40px;
 }
 
 form {
