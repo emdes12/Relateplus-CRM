@@ -49,7 +49,7 @@ const showPassword = () => {
           <FormInput inpType="email" v-model="emailValue" inpPlaceholder="Email:" :inpIcon="MailIcon" />
           <FormInput :inpType="passwordText" v-model="passValue" inpPlaceholder="Password:" :passChangeAction="showPassword" :passShowIcon="IconPassValue" :inpIcon="PassIcon" />
           <div class="rdlf">
-            <span><FormInput inpType="checkbox" v-model="agreedlValue" /></span> <p>agreed to the <RouterLink to="#">Terms and Conditions</RouterLink></p>
+            <span><FormInput inpType="checkbox" v-model="agreedlValue" /></span> <p>Agreed to the <RouterLink to="#">Terms and Conditions</RouterLink></p>
           </div>
           <BtnPry msg="Create account" :onSubmitToCreate="createAccount" wdt="100%"/>
         </form>
