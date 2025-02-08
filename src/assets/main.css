@@ -26,9 +26,20 @@ h2 {
   line-height: normal;
 }
 
+h3 {
+  font-family: "League Spartan";
+  font-size: 40px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
 
-@media (hover: hover) {
-
+h4 {
+  font-family: "League Spartan";
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 200;
+  line-height: normal;
 }
 
 @media (max-width: 750px) {
@@ -37,6 +48,14 @@ h2 {
   }
 
   h2 {
+    font-size: 28px;
+  }
+
+  h3 {
+    font-size: 50px;
+  }
+
+  h4 {
     font-size: 28px;
   }
 }
