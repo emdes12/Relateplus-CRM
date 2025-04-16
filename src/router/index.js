@@ -28,7 +28,27 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'Dashboard',
-      component: () => import('../views/Dashboard.vue'),
+      component: () => import('../views/Customers.vue'),
+    },
+    {
+      path: '/dashboard/services',
+      name: 'Services',
+      component: () => import('../views/Services.vue'),
+    },
+    {
+      path: '/dashboard/calendar',
+      name: 'Task - Calendar',
+      component: () => import('../views/Calendar.vue'),
+    },
+    {
+      path: '/dashboard/forms',
+      name: 'Forms',
+      component: () => import('../views/Forms.vue'),
+    },
+    {
+      path: '/dashboard/staffs',
+      name: 'Staffs',
+      component: () => import('../views/Staffs.vue'),
     },
   ],
 })

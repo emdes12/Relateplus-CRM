@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from 'vue';
 import axios from "axios";
 import Logo from "../../assets/icons/r+.svg";
 import BtnPry from "../../components/BtnPry.vue";
@@ -10,6 +10,15 @@ import MailIcon from "../../assets/icons/envelop.svg";
 import HidePassIcon from "../../assets/icons/hide.svg";
 import ShowPassIcon from "../../assets/icons/lock.svg";
 import PassIcon from "../../assets/icons/lock.svg";
+
+// check if token is available
+onMounted(()=>{
+  const token = localStorage.getItem("token");
+
+  if(token){
+    return window.location.href = '/dashboard';
+  }
+})
 
 let emailValue = ref("");
 let passValue = ref("");
@@ -32,7 +41,7 @@ const showAlert = (string1, string2) => {
   isMessage.value = true;
   setInterval(() => {
     isMessage.value = false;
-  }, 3000);
+  }, 5000);
 }
 
 const submitLogin = async () => {
