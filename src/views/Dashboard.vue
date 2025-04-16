@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import AlertMessage from "../components/AlertMessage.vue";
 
 const api = axios.create({
   baseURL: 'http://localhost:4123',
@@ -11,7 +12,22 @@ const api = axios.create({
 
 let user = ref(null); // Use ref for reactive data
 let isLoading = ref(true); // Add loading state
-let error = ref(null); // Add error state
+let isMessage = ref(false)
+let alertMes = ref("Successfully logged in");
+let alertType = ref('success');
+
+
+
+const showAlert = (string1, string2) => {
+  alertMes.value = string1;
+  alertType.value = string2;
+  isMessage.value = true;
+  console.log(alertMes.value);
+  console.log(isMessage.value);
+  setInterval(() => {
+    isMessage.value = false;
+  }, 3000);
+}
 
 onMounted(async () => {
   try {
@@ -21,11 +37,12 @@ onMounted(async () => {
       console.log(2)
       user.value = res.data; // Assign to .value for refs
       console.log(user.value)
+      showAlert(`${res.data.user_name} Welcome`, "success");
   } catch (err) {
-    error.value = err.response?.data?.message || err.message;
     
     // Redirect to login if unauthorized
-      localStorage.removeItem('token'); // Clear invalid token
+    showAlert(err.response.data, "error")
+    localStorage.removeItem('token'); // Clear invalid token
     window.location.href = '/login';
   } finally {
     isLoading.value = false;
@@ -34,11 +51,8 @@ onMounted(async () => {
 </script>
 
 <template>
+    <AlertMessage v-show="isMessage" :msg="alertMes" :type="alertType"/>
   <div v-if="isLoading">Loading dashboard...</div>
-  
-  <div v-else-if="error" class="error">
-    Error loading dashboard: {{ error }}
-  </div>
   
   <div v-else>
     <h1>Hey {{ user.user_name || "Murtiala" }}!</h1>

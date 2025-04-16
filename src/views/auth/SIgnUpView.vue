@@ -1,81 +1,160 @@
 <script setup>
-import { ref } from "vue"
+import { ref } from "vue";
 import axios from "axios";
-import Logo from "../../assets/icons/r+.svg"
-import BtnPry from "../../components/BtnPry.vue"
-import FormInput from "../../components/FormInput.vue"
-import AuthImg from "../../assets/images/auth-sign-up.png"
-import MailIcon from "../../assets/icons/envelop.svg"
-import HidePassIcon from "../../assets/icons/hide.svg"
-import ShowPassIcon from "../../assets/icons/lock.svg"
-import PassIcon from "../../assets/icons/lock.svg"
+import Logo from "../../assets/icons/r+.svg";
+import BtnPry from "../../components/BtnPry.vue";
+import AlertMessage from "../../components/AlertMessage.vue";
+import FormInput from "../../components/FormInput.vue";
+import AuthImg from "../../assets/images/auth-sign-up.png";
+import MailIcon from "../../assets/icons/envelop.svg";
+import HidePassIcon from "../../assets/icons/hide.svg";
+import ShowPassIcon from "../../assets/icons/lock.svg";
+import PassIcon from "../../assets/icons/lock.svg";
 
-let nameValue = ref("")
-let emailValue = ref("")
-let passValue = ref("")
-let IconPassValue = ref(HidePassIcon)
-let passwordText = ref("password")
-let isShowPassword = ref(false)
-let agreedlValue = ref(true)
+let nameValue = ref("");
+let emailValue = ref("");
+let passValue = ref("");
+let IconPassValue = ref(HidePassIcon);
+let passwordText = ref("password");
+let isShowPassword = ref(false);
+let agreedlValue = ref(true);
+let isMessage = ref(false)
+let alertMes = ref("Successfully logged in");
+let alertType = ref('success');
 
 // Add base URL (adjust according to your backend)
 const api = axios.create({
-  baseURL: 'http://localhost:4123', // Change this for production
+  baseURL: "http://localhost:4123", // Change this for production
   // withCredentials: true // Optional: for cookies/sessions
 });
 
-const createAccount = () => {
-  console.log(emailValue.value)
-  console.log(passValue.value)
-  console.log(agreedlValue.value)
+const showAlert = (string1, string2) => {
+  alertMes.value = string1;
+  alertType.value = string2;
+  isMessage.value = true;
+  console.log(alertMes.value);
+  console.log(isMessage.value);
+  setInterval(() => {
+    isMessage.value = false;
+  }, 2000);
 }
 
-const showPassword = () => {
-  if(!isShowPassword.value){
-    IconPassValue.value = ShowPassIcon
-    passwordText.value = "text"
-    isShowPassword.value = true
-  } else {
-    IconPassValue.value = HidePassIcon
-    passwordText.value = "password"
-    isShowPassword.value = false
+const createAccount = async () => {
+  console.log(nameValue.value);
+  console.log(emailValue.value);
+  try {
+    console.log(agreedlValue.value);
+    const response = await api.post("/auth/register", {
+      name: nameValue.value,
+      email: emailValue.value,
+      password: passValue.value,
+    });
+
+    // Handle successful login
+    console.log("Registration successful:", response.data);
+    showAlert("Registration successful", "success");
+
+    // Store token (if using JWT)
+    localStorage.setItem("token", response.data);
+
+    const config = {
+      headers: { token: response.data },
+    };
+
+    const result = await api.get("/auth/is-verify", config);
+    if (!result) {
+      return alert(result);
+    }
+    // console.log(result.data);
+
+    // Redirect to dashboard
+    window.location.href = "/dashboard";
+  } catch (error) {
+    console.error(
+      "failed:",
+      error.response.data
+    );
+    // Add error message display to user
+    showAlert(error.response.data, "error")
   }
-}
+};
+
+const showPassword = () => {
+  if (!isShowPassword.value) {
+    isShowPassword.value = true;
+    IconPassValue.value = ShowPassIcon;
+    passwordText.value = "text";
+  } else {
+    IconPassValue.value = HidePassIcon;
+    passwordText.value = "password";
+    isShowPassword.value = false;
+  }
+};
 </script>
 
 <template>
+  <AlertMessage v-show="isMessage" :msg="alertMes" :type="alertType"/>
   <div class="auth">
     <div class="container">
       <div class="logo"><img alt="logo" src="@/assets/logo2.svg" /></div>
-    <main class="content">
-      <div class="form-container">
-        <div class="auth-methods">
-          <h3>We're excited you're here</h3>
-          <h4>Start by creating a free account</h4>
-        </div>
-        <form action="#">
-          <FormInput inpType="text" v-model="nameValue" inpPlaceholder="Name:" :inpIcon="MailIcon" />
-          <FormInput inpType="email" v-model="emailValue" inpPlaceholder="Email:" :inpIcon="MailIcon" />
-          <FormInput :inpType="passwordText" v-model="passValue" inpPlaceholder="Password:" :passChangeAction="showPassword" :passShowIcon="IconPassValue" :inpIcon="PassIcon" />
-          <div class="rdlf">
-            <span><FormInput inpType="checkbox" v-model="agreedlValue" /></span> <p>Agreed to the <RouterLink to="#">Terms and Conditions</RouterLink></p>
+      <main class="content">
+        <div class="form-container">
+          <div class="auth-methods">
+            <h3>We're excited you're here</h3>
+            <h4>Start by creating a free account</h4>
           </div>
-          <BtnPry msg="Create account" :onSubmitToCreate="createAccount" wdt="100%"/>
-        </form>
-        <div class="auth-methods">
-          <span>Continue with:</span>
-          <div class="other-auth">
-            <span><img src="../../assets/images/Google-auth.png" /></span>
-            <span><img src="../../assets/images/Facebook-auth.png" /></span>
-            <span><img src="../../assets/images/Apple-auth.png" /></span>
+          <form @submit.prevent="createAccount">
+            <FormInput
+              inpType="text"
+              v-model="nameValue"
+              inpPlaceholder="Name:"
+              :inpIcon="MailIcon"
+            />
+            <FormInput
+              inpType="email"
+              v-model="emailValue"
+              inpPlaceholder="Email:"
+              :inpIcon="MailIcon"
+            />
+            <FormInput
+              :inpType="passwordText"
+              v-model="passValue"
+              inpPlaceholder="Password:"
+              :passChangeAction="showPassword"
+              :passShowIcon="IconPassValue"
+              :inpIcon="PassIcon"
+            />
+            <div class="rdlf">
+              <span
+                ><FormInput inpType="checkbox" v-model="agreedlValue"
+              /></span>
+              <p>
+                Agreed to the
+                <RouterLink to="#">Terms and Conditions</RouterLink>
+              </p>
+            </div>
+            <BtnPry
+              msg="Create account"
+              :onSubmitToCreate="createAccount"
+              wdt="100%"
+            />
+          </form>
+          <div class="auth-methods">
+            <span>Continue with:</span>
+            <div class="other-auth">
+              <span><img src="../../assets/images/Google-auth.png" /></span>
+              <span><img src="../../assets/images/Facebook-auth.png" /></span>
+              <span><img src="../../assets/images/Apple-auth.png" /></span>
+            </div>
           </div>
+          <p>
+            Already have an account? <RouterLink to="/login">Login</RouterLink>
+          </p>
         </div>
-        <p>Already have an account? <RouterLink to="/login">Login</RouterLink></p>
-      </div>
-      <div class="img">
-        <img class="imag" :src="AuthImg" />
-      </div>
-    </main>
+        <div class="img">
+          <img class="imag" :src="AuthImg" />
+        </div>
+      </main>
     </div>
   </div>
 </template>
@@ -147,7 +226,8 @@ const showPassword = () => {
   grid-template-rows: 100px 1fr;
 }
 
-h3, h4 {
+h3,
+h4 {
   text-align: center;
   width: 100%;
 }

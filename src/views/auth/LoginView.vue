@@ -3,6 +3,7 @@ import { ref } from "vue";
 import axios from "axios";
 import Logo from "../../assets/icons/r+.svg";
 import BtnPry from "../../components/BtnPry.vue";
+import AlertMessage from "../../components/AlertMessage.vue";
 import FormInput from "../../components/FormInput.vue";
 import AuthImg from "../../assets/images/auth-sign-in.png";
 import MailIcon from "../../assets/icons/envelop.svg";
@@ -15,7 +16,9 @@ let passValue = ref("");
 let IconPassValue = ref(HidePassIcon);
 let passwordText = ref("password");
 let isShowPassword = ref(false);
-let agreedlValue = ref(true);
+let isMessage = ref(false)
+let alertMes = ref("Successfully logged in");
+let alertType = ref('success');
 
 // Add base URL (adjust according to your backend)
 const api = axios.create({
@@ -23,8 +26,16 @@ const api = axios.create({
   // withCredentials: true // Optional: for cookies/sessions
 });
 
-const submitLogin = async () => {
+const showAlert = (string1, string2) => {
+  alertMes.value = string1;
+  alertType.value = string2;
+  isMessage.value = true;
+  setInterval(() => {
+    isMessage.value = false;
+  }, 3000);
+}
 
+const submitLogin = async () => {
   try {
     const response = await api.post("/auth/login", {
       email: emailValue.value,
@@ -33,6 +44,7 @@ const submitLogin = async () => {
 
     // Handle successful login
     console.log("Login successful:", response.data);
+    showAlert("Login successful", "success");
 
     // Store token (if using JWT)
     localStorage.setItem("token", response.data);
@@ -52,9 +64,10 @@ const submitLogin = async () => {
   } catch (error) {
     console.error(
       "Login failed:",
-      error.response?.data?.message || error.message
+      error.response.data
     );
     // Add error message display to user
+    showAlert(error.response.data, "error")
   }
 };
 
@@ -72,6 +85,7 @@ const showPassword = () => {
 </script>
 
 <template>
+  <AlertMessage v-show="isMessage" :msg="alertMes" :type="alertType"/>
   <div class="auth">
     <div class="container">
       <div class="logo"><img alt="logo" src="@/assets/logo2.svg" /></div>
