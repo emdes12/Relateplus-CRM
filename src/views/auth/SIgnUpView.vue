@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue"
+import axios from "axios";
 import Logo from "../../assets/icons/r+.svg"
 import BtnPry from "../../components/BtnPry.vue"
 import FormInput from "../../components/FormInput.vue"
@@ -9,12 +10,19 @@ import HidePassIcon from "../../assets/icons/hide.svg"
 import ShowPassIcon from "../../assets/icons/lock.svg"
 import PassIcon from "../../assets/icons/lock.svg"
 
+let nameValue = ref("")
 let emailValue = ref("")
 let passValue = ref("")
 let IconPassValue = ref(HidePassIcon)
 let passwordText = ref("password")
 let isShowPassword = ref(false)
 let agreedlValue = ref(true)
+
+// Add base URL (adjust according to your backend)
+const api = axios.create({
+  baseURL: 'http://localhost:4123', // Change this for production
+  // withCredentials: true // Optional: for cookies/sessions
+});
 
 const createAccount = () => {
   console.log(emailValue.value)
@@ -46,6 +54,7 @@ const showPassword = () => {
           <h4>Start by creating a free account</h4>
         </div>
         <form action="#">
+          <FormInput inpType="text" v-model="nameValue" inpPlaceholder="Name:" :inpIcon="MailIcon" />
           <FormInput inpType="email" v-model="emailValue" inpPlaceholder="Email:" :inpIcon="MailIcon" />
           <FormInput :inpType="passwordText" v-model="passValue" inpPlaceholder="Password:" :passChangeAction="showPassword" :passShowIcon="IconPassValue" :inpIcon="PassIcon" />
           <div class="rdlf">
