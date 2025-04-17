@@ -32,8 +32,13 @@ let alertMes = ref("Successfully logged in");
 let alertType = ref('success');
 
 // Add base URL (adjust according to your backend)
+// const api = axios.create({
+//   baseURL: "http://localhost:4123", // Change this for production
+//   // withCredentials: true // Optional: for cookies/sessions
+// });
+
 const api = axios.create({
-  baseURL: "http://localhost:4123", // Change this for production
+  baseURL: "https://relate-server-production.up.railway.app/",
   // withCredentials: true // Optional: for cookies/sessions
 });
 

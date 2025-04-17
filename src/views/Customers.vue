@@ -7,12 +7,20 @@ import BtnDbPry from "../components/BtnDbPry.vue";
 import LeftDialogue from "../components/LeftDialogue.vue";
 import customernull from "../assets/images/customersnull.png";
 
+// const api = axios.create({
+//   baseURL: "http://localhost:4123",
+//   headers: {
+//     token: `${localStorage.getItem("token")}`,
+//   },
+// });
+
 const api = axios.create({
-  baseURL: "http://localhost:4123",
+  baseURL: "https://relate-server-production.up.railway.app/",
+  withCredentials: true, // If using cookies
   headers: {
     token: `${localStorage.getItem("token")}`,
   },
-});
+})
 
 const list = ref([
   {
