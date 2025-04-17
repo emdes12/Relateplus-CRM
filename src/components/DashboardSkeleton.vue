@@ -23,19 +23,30 @@ defineProps({
     type: Boolean,
     required: true,
   },
+  hBtnShow: {
+    type: Number,
+    required: true,
+  },
+  hBtnMsg: {
+    type: String,
+    required: true,
+  },
+  onClickToShow: {
+    type: Function,
+  },
 });
 
 const getGreeting = () => {
   const hour = new Date().getHours();
   
   if (hour >= 5 && hour < 12) {
-    return "Good morning!";
+    return "Good morning! 🌄";
   } else if (hour >= 12 && hour < 17) {
-    return "Good afternoon!";
+    return "Good afternoon! 🌞";
   } else if (hour >= 17 && hour < 21) {
-    return "Good evening!";
+    return "Good evening! 🌆";
   } else {
-    return "Good night!";
+    return "Good night! 🛌🏼";
   }
 }
 
@@ -65,6 +76,7 @@ const checkScreenSize = () => {
 
 const logout = () => {
   // Implement logout logic
+  localStorage.removeItem("token")
   router.push("/login");
 };
 
@@ -105,7 +117,7 @@ onBeforeUnmount(() => {
         <div class="header-right">
           <!-- add the notification/search icon and btn later -->
            <span>{{ getGreeting() }}</span>
-          <BtnDbPry link="/dashboard" msg="add" wdt="max-content" />
+          <BtnDbPry :onClickToShow="onClickToShow" v-show="hBtnShow" link="/dashboard" :msg="hBtnMsg" wdt="max-content" />
           <img :src="SearchIcon" alt="search">
           <img :src="NotificationIcon" alt="notification">
         </div>

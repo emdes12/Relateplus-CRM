@@ -32,8 +32,8 @@ defineProps({
   color: #ecf0f1;
   gap: 10px;
   border-radius: 10px;
-  background: var(--Primary-color, #f60);
-  color: var(--white, #fff);
+  border: 1px solid black;
+  color: var(--white, #000);
   font-family: "League Spartan";
   font-size: 1rem;
   font-style: normal;
