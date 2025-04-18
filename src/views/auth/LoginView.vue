@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted } from "vue";
 import axios from "axios";
 import Logo from "../../assets/icons/r+.svg";
 import BtnPry from "../../components/BtnPry.vue";
@@ -10,24 +10,25 @@ import MailIcon from "../../assets/icons/envelop.svg";
 import HidePassIcon from "../../assets/icons/hide.svg";
 import ShowPassIcon from "../../assets/icons/lock.svg";
 import PassIcon from "../../assets/icons/lock.svg";
+import apiMode from "../../../apiMode";
 
 // check if token is available
-onMounted(()=>{
+onMounted(() => {
   const token = localStorage.getItem("token");
 
-  if(token){
-    return window.location.href = '/dashboard';
+  if (token) {
+    return (window.location.href = "/dashboard");
   }
-})
+});
 
 let emailValue = ref("");
 let passValue = ref("");
 let IconPassValue = ref(HidePassIcon);
 let passwordText = ref("password");
 let isShowPassword = ref(false);
-let isMessage = ref(false)
+let isMessage = ref(false);
 let alertMes = ref("Successfully logged in");
-let alertType = ref('success');
+let alertType = ref("success");
 
 // Add base URL (adjust according to your backend)
 // const api = axios.create({
@@ -35,11 +36,7 @@ let alertType = ref('success');
 //   // withCredentials: true // Optional: for cookies/sessions
 // });
 
-const api = axios.create({
-  baseURL: "https://relate-server-production.up.railway.app/",
-  // withCredentials: true // Optional: for cookies/sessions
-});
-
+const api = apiMode;
 const showAlert = (string1, string2) => {
   alertMes.value = string1;
   alertType.value = string2;
@@ -47,7 +44,7 @@ const showAlert = (string1, string2) => {
   setInterval(() => {
     isMessage.value = false;
   }, 5000);
-}
+};
 
 const submitLogin = async () => {
   try {
@@ -64,26 +61,27 @@ const submitLogin = async () => {
     localStorage.setItem("token", response.data);
 
     const config = {
-      headers: { token: response.data},
+      headers: { token: response.data },
     };
-    
+
     const result = await api.get("/auth/is-verify", config);
-    if(!result){
-      return alert(result)
+    if (!result) {
+      return alert(result);
     }
-    console.log(result.data)
+    console.log(result.data);
 
     // Redirect to dashboard
-    window.location.href = '/dashboard';
+    window.location.href = "/dashboard";
   } catch (error) {
-    console.error(
-      "Login failed:",
-      error.response.data
-    );
+    console.error("Login failed:", error.response.data);
     // Add error message display to user
-    showAlert(error.response.data, "error")
+    showAlert(error.response.data, "error");
   }
 };
+
+const socialLogin = () => {
+  showAlert("Server Error Login Using your email and password", "error")
+}
 
 const showPassword = () => {
   if (!isShowPassword.value) {
@@ -99,7 +97,7 @@ const showPassword = () => {
 </script>
 
 <template>
-  <AlertMessage v-show="isMessage" :msg="alertMes" :type="alertType"/>
+  <AlertMessage v-show="isMessage" :msg="alertMes" :type="alertType" />
   <div class="auth">
     <div class="container">
       <div class="logo"><img alt="logo" src="@/assets/logo2.svg" /></div>
@@ -136,9 +134,9 @@ const showPassword = () => {
           <div class="auth-methods">
             <span>Continue with:</span>
             <div class="other-auth">
-              <span><img src="../../assets/images/Google-auth.png" /></span>
-              <span><img src="../../assets/images/Facebook-auth.png" /></span>
-              <span><img src="../../assets/images/Apple-auth.png" /></span>
+              <span @click="socialLogin"><img src="../../assets/images/Google-auth.png" /></span>
+              <span @click="socialLogin"><img src="../../assets/images/Facebook-auth.png" /></span>
+              <span @click="socialLogin"><img src="../../assets/images/Apple-auth.png" /></span>
             </div>
           </div>
           <p>

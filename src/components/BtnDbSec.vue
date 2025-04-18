@@ -13,12 +13,12 @@ defineProps({
     type: String,
     required: false,
   },
-  onClickToShow: Function,
+  onClickToCancel: Function,
 });
 </script>
 
 <template>
-  <div class="btn-primary"  v-on:click="onClickToShow" :style="'width: ' + wdt">{{ msg }}</div>
+  <div class="btn-primary"  v-on:click="onClickToCancel" :style="'width: ' + wdt">{{ msg }}</div>
 </template>
 
 <style scoped>

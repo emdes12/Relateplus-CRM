@@ -9,6 +9,12 @@ defineProps({
   onClickToShow: {
     type: Function,
   },
+  actionClickSubmit: {
+    type: Function,
+  },
+  closeDialogue: {
+    type: Function,
+  },
 });
 </script>
 
@@ -21,8 +27,8 @@ defineProps({
       </div>
       <div class="dialogue-content"><slot></slot></div>
       <div class="dialogun-actions">
-        <BtnDbSec msg="Cancel" />
-        <BtnDbPry msg="Save" />
+        <BtnDbSec :onClickToCancel="closeDialogue" msg="Cancel" />
+        <BtnDbPry :onClickToAct="actionClickSubmit" msg="Save" />
       </div>
     </div>
   </div>
@@ -52,6 +58,13 @@ defineProps({
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
+}
+
+.dialogue-content {
+  width: 100%;
+  padding: 20px;
+  flex: 0.9;
+  overflow-y: scroll;
 }
 
 .dialogue-header {

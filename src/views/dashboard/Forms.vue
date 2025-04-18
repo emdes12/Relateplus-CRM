@@ -3,13 +3,11 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 import axios from "axios";
 import AlertMessage from "../components/AlertMessage.vue";
 import DashboardSkeleton from "../components/DashboardSkeleton.vue";
+import apiMode from "../../../apiMode";
 
-const api = axios.create({
-  baseURL: "http://localhost:4123",
-  headers: {
-    token: `${localStorage.getItem("token")}`,
-  },
-});
+
+const api = apiMode;
+
 
 let user = ref(null); // Use ref for reactive data
 let isLoading = ref(true); // Add loading state

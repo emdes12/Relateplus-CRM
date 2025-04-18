@@ -1,0 +1,43 @@
+<script setup>
+import { RouterLink, RouterView } from "vue-router";
+import BtnDbPry from "../components/BtnDbPry.vue";
+defineProps({
+  nullImg: {
+    type: String,
+    required: false,
+  },
+  nullText: {
+    type: String,
+    required: false,
+  },
+  nullBtnText: {
+    type: String,
+    required: false,
+  },
+  nullBtnAction: {
+    type: Function,
+    required: false,
+  },
+});
+</script>
+
+<template>
+  <div class="nulll">
+    <img :src="nullImg" alt="no client yet" />
+    <span>{{ nullText }}</span>
+    <BtnDbPry :onClickToAct="nullBtnAction" :msg="nullBtnText" />
+  </div>
+</template>
+
+<style scoped>
+.nulll {
+  display: flex;
+  margin: 0 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  padding-top: 100px;
+  width: 400px;
+  text-align: center;
+}
+</style>

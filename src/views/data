@@ -1,0 +1,48 @@
+import { ref } from "vue";
+
+const customersList = ref([
+  {
+    client_name: "Bello Oye",
+    client_initial: "B",
+    client_phone: "09012345678",
+    client_email: "oyebellow@mail.com",
+    client_color: "navy",
+  },
+  {
+    client_name: "Seun Ojo",
+    client_initial: "S",
+    client_phone: "09012345678",
+    client_email: "@mail.com",
+    client_color: "maroon",
+  },
+  {
+    client_name: "Seyi TIMFAT",
+    client_initial: "S",
+    client_phone: "09012345678",
+    client_email: "seyi@timfat.com.ng",
+    client_color: "orange",
+  },
+  {
+    client_name: "Alabi",
+    client_initial: "A",
+    client_phone: "09012345678",
+    client_email: "labi2@mail.com",
+    client_color: "black",
+  },
+  {
+    client_name: "Sharafa",
+    client_initial: "S",
+    client_phone: "09012345678",
+    client_email: "saraf@mail.com",
+    client_color: "olive",
+  },
+  {
+    client_name: "Toheeb",
+    client_initial: "T",
+    client_phone: "09012345678",
+    client_email: "olu.t@gmail.com",
+    client_color: "olive",
+  },
+]);
+
+export { customersList };

@@ -28,27 +28,27 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'Dashboard',
-      component: () => import('../views/Customers.vue'),
+      component: () => import('../views/dashboard/Customers.vue'),
     },
     {
       path: '/dashboard/services',
       name: 'Services',
-      component: () => import('../views/Services.vue'),
+      component: () => import('../views/dashboard/Services.vue'),
     },
     {
       path: '/dashboard/calendar',
       name: 'Task - Calendar',
-      component: () => import('../views/Calendar.vue'),
+      component: () => import('../views/dashboard/Calendar.vue'),
     },
     {
       path: '/dashboard/forms',
       name: 'Forms',
-      component: () => import('../views/Forms.vue'),
+      component: () => import('../views/dashboard/Forms.vue'),
     },
     {
       path: '/dashboard/staffs',
       name: 'Staffs',
-      component: () => import('../views/Staffs.vue'),
+      component: () => import('../views/dashboard/Staffs.vue'),
     },
   ],
 })

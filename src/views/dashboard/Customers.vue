@@ -1,78 +1,45 @@
 <script setup>
-import { ref, onMounted, computed, onBeforeUnmount } from "vue";
+import { ref, onMounted, computed, onBeforeUnmount, reactive } from "vue";
 import axios from "axios";
-import AlertMessage from "../components/AlertMessage.vue";
-import DashboardSkeleton from "../components/DashboardSkeleton.vue";
-import BtnDbPry from "../components/BtnDbPry.vue";
-import LeftDialogue from "../components/LeftDialogue.vue";
-import customernull from "../assets/images/customersnull.png";
+import AlertMessage from "@/components/AlertMessage.vue";
+import DashboardSkeleton from "@/components/DashboardSkeleton.vue";
+import BtnDbPry from "@/components/BtnDbPry.vue";
+import LeftDialogue from "@/components/LeftDialogue.vue";
+import customernull from "@/assets/images/customersnull.png";
+import { customersList } from "../data";
+import NullList from "@/components/NullList.vue";
+import ClientForm from "@/components/ClientForm.vue";
+import apiMode from "../../../apiMode";
 
-// const api = axios.create({
-//   baseURL: "http://localhost:4123",
-//   headers: {
-//     token: `${localStorage.getItem("token")}`,
-//   },
-// });
 
-const api = axios.create({
-  baseURL: "https://relate-server-production.up.railway.app/",
-  withCredentials: true, // If using cookies
-  headers: {
-    token: `${localStorage.getItem("token")}`,
-  },
-})
+const api = apiMode;
 
-const list = ref([
-  {
-    client_name: "Bello Oye",
-    client_initial: "B",
-    client_phone: "09012345678",
-    client_email: "oyebellow@mail.com",
-    client_color: "navy",
-  },
-  {
-    client_name: "Seun Ojo",
-    client_initial: "S",
-    client_phone: "09012345678",
-    client_email: "@mail.com",
-    client_color: "maroon",
-  },
-  {
-    client_name: "Seyi TIMFAT",
-    client_initial: "S",
-    client_phone: "09012345678",
-    client_email: "seyi@timfat.com.ng",
-    client_color: "orange",
-  },
-  {
-    client_name: "Alabi",
-    client_initial: "A",
-    client_phone: "09012345678",
-    client_email: "labi2@mail.com",
-    client_color: "black",
-  },
-  {
-    client_name: "Sharafa",
-    client_initial: "S",
-    client_phone: "09012345678",
-    client_email: "saraf@mail.com",
-    client_color: "olive",
-  },
-  {
-    client_name: "Toheeb",
-    client_initial: "T",
-    client_phone: "09012345678",
-    client_email: "olu.t@gmail.com",
-    client_color: "olive",
-  },
-]);
-
+// declaration of value below
+const list = customersList;
 let user = ref(null); // Use ref for reactive data
 let isLoading = ref(true); // Add loading state
 let isMessage = ref(false);
-let isAddForm = ref(true);
+let isAddForm = ref(false);
 let alertMes = ref("Successfully logged in");
 let alertType = ref("success");
+
+let clientForm = reactive({
+  // client Form values
+  name: "",
+  number: "",
+  email: "",
+  label: "",
+  location: "",
+  birthday: "",
+  note: "",
+});
+
+// Functions goes below
+const submitClientForm = () => {
+  alert(clientForm)
+  toggleDialogue()
+  showAlert("Form Added", "success")
+}
 
 const showAlert = (string1, string2) => {
   alertMes.value = string1;
@@ -85,7 +52,7 @@ const showAlert = (string1, string2) => {
   }, 5000);
 };
 
-const showAddForm = () => {
+const toggleDialogue = () => {
   console.log("show form");
   isAddForm.value = !isAddForm.value;
   console.log(isAddForm.value);
@@ -94,7 +61,10 @@ const showAddForm = () => {
 onMounted(async () => {
   try {
     // Verify token and get user data in one request
-    const res = await api.get("/dashboard");
+  const token = localStorage.getItem("token");
+    const res = await api.get("/dashboard",{
+      headers: { token: `${token}` }
+    });
     user.value = res.data; // Assign to .value for refs
     showAlert(`${res.data.user_name} Welcome`, "success");
   } catch (err) {
@@ -142,8 +112,21 @@ const formatPhoneNumber = (phone) => {
 
 <template>
   <!-- Add form Dialogue -->
-  <LeftDialogue :onClickToShow="showAddForm" v-show="isAddForm">
-    <h1>add you client details</h1>
+  <LeftDialogue
+    :onClickToShow="toggleDialogue"
+    :actionClickSubmit="submitClientForm"
+    :close-dialogue="toggleDialogue"
+    v-show="isAddForm"
+  >
+    <ClientForm
+      v-model:clientNameValue="clientForm.name"
+      v-model:clientNumberValue="clientForm.number"
+      v-model:clientEmailValue="clientForm.email"
+      v-model:clientLabelValue="clientForm.label"
+      v-model:clientLocationValue="clientForm.location"
+      v-model:clientBdayValue="clientForm.birthday"
+      v-model:clientNoteValue="clientForm.note"
+    />
   </LeftDialogue>
 
   <!-- Alert message for notifications -->
@@ -156,7 +139,7 @@ const formatPhoneNumber = (phone) => {
 
   <!-- Dashboard View -->
   <DashboardSkeleton
-    :onClickToShow="showAddForm"
+    :onClickToShow="toggleDialogue"
     :hBtnShow="list.length"
     hBtnMsg="Add Client"
     :user="user"
@@ -165,14 +148,13 @@ const formatPhoneNumber = (phone) => {
   >
     <!-- enter your content below (slots) -->
     <!-- no list found -->
-    <div v-show="!list.length" class="nulll">
-      <img :src="customernull" alt="no client yet" />
-      <span
-        >Manage your client base. Structure your Customers list using labels and
-        group</span
-      >
-      <BtnDbPry :onClickToShow="showAddForm" msg="Add Client" />
-    </div>
+    <NullList
+      v-show="!list.length"
+      :nullImg="customernull"
+      null-text="Manage your client base. Structure your Customers list using labels and group"
+      null-btn-text="Add Customer"
+      :null-btn-action="toggleDialogue"
+    />
 
     <!-- list available -->
     <div v-show="list" class="contacts-container">
@@ -209,17 +191,6 @@ const formatPhoneNumber = (phone) => {
 </template>
 
 <style scoped>
-.nulll {
-  display: flex;
-  margin: 0 auto;
-  flex-direction: column;
-  align-items: center;
-  gap: 30px;
-  padding-top: 100px;
-  width: 4s00px;
-  text-align: center;
-}
-
 .initials {
   width: 80px;
   height: 80px;
@@ -261,7 +232,7 @@ const formatPhoneNumber = (phone) => {
 
 .contact-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
 .card-content {

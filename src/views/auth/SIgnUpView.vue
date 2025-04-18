@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
 import Logo from "../../assets/icons/r+.svg";
 import BtnPry from "../../components/BtnPry.vue";
 import AlertMessage from "../../components/AlertMessage.vue";
@@ -10,6 +9,7 @@ import MailIcon from "../../assets/icons/envelop.svg";
 import HidePassIcon from "../../assets/icons/hide.svg";
 import ShowPassIcon from "../../assets/icons/lock.svg";
 import PassIcon from "../../assets/icons/lock.svg";
+import apiMode from "../../../apiMode";
 
 // check if token is available
 onMounted(()=>{
@@ -32,15 +32,8 @@ let alertMes = ref("Successfully logged in");
 let alertType = ref('success');
 
 // Add base URL (adjust according to your backend)
-// const api = axios.create({
-//   baseURL: "http://localhost:4123", // Change this for production
-//   // withCredentials: true // Optional: for cookies/sessions
-// });
+const api = apiMode;
 
-const api = axios.create({
-  baseURL: "https://relate-server-production.up.railway.app/",
-  // withCredentials: true // Optional: for cookies/sessions
-});
 
 const showAlert = (string1, string2) => {
   alertMes.value = string1;
@@ -51,6 +44,10 @@ const showAlert = (string1, string2) => {
   setInterval(() => {
     isMessage.value = false;
   }, 5000);
+}
+
+const socialLogin = () => {
+  showAlert("Server Error: Register Using your email and password", "error")
 }
 
 const createAccount = async () => {
@@ -156,9 +153,9 @@ const showPassword = () => {
           <div class="auth-methods">
             <span>Continue with:</span>
             <div class="other-auth">
-              <span><img src="../../assets/images/Google-auth.png" /></span>
-              <span><img src="../../assets/images/Facebook-auth.png" /></span>
-              <span><img src="../../assets/images/Apple-auth.png" /></span>
+              <span @click="socialLogin"><img src="../../assets/images/Google-auth.png" /></span>
+              <span @click="socialLogin"><img src="../../assets/images/Facebook-auth.png" /></span>
+              <span @click="socialLogin"><img src="../../assets/images/Apple-auth.png" /></span>
             </div>
           </div>
           <p>
