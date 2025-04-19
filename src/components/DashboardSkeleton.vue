@@ -19,10 +19,6 @@ defineProps({
     type: Object,
     required: false,
   },
-  isLoading: {
-    type: Boolean,
-    required: true,
-  },
   hBtnShow: {
     type: Number,
     required: true,
@@ -31,7 +27,7 @@ defineProps({
     type: String,
     required: true,
   },
-  onClickToShow: {
+  toggleDialogueBtn: {
     type: Function,
   },
 });
@@ -60,6 +56,7 @@ const navItems = [
   { path: "/dashboard/forms", name: "Forms", icon: FormsIcon },
   { path: "/dashboard/staffs", name: "Staffs", icon: StaffsIcon },
 ];
+
 
 const toggleSidebar = () => {
   isSidebarCollapsed.value = !isSidebarCollapsed.value;
@@ -91,9 +88,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div v-if="isLoading">Loading dashboard...</div>
 
-  <div v-else>
+  <div>
     <div class="dashboard-container">
       <!-- Header -->
       <header class="header">
@@ -117,7 +113,7 @@ onBeforeUnmount(() => {
         <div class="header-right">
           <!-- add the notification/search icon and btn later -->
            <span>{{ getGreeting() }}</span>
-          <BtnDbPry :onClickToShow="onClickToShow" v-show="hBtnShow" link="/dashboard" :msg="hBtnMsg" wdt="max-content" />
+          <BtnDbPry :onClickToAct="toggleDialogueBtn" v-show="hBtnShow" :msg="hBtnMsg" wdt="max-content" />
           <img :src="SearchIcon" alt="search">
           <img :src="NotificationIcon" alt="notification">
         </div>

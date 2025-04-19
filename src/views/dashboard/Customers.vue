@@ -1,11 +1,9 @@
 <script setup>
 import { ref, onMounted, computed, onBeforeUnmount, reactive } from "vue";
-import axios from "axios";
 import AlertMessage from "@/components/AlertMessage.vue";
 import DashboardSkeleton from "@/components/DashboardSkeleton.vue";
-import BtnDbPry from "@/components/BtnDbPry.vue";
 import LeftDialogue from "@/components/LeftDialogue.vue";
-import customernull from "@/assets/images/customersnull.png";
+import customerNull from "@/assets/images/customersnull.png";
 import { customersList } from "../data";
 import NullList from "@/components/NullList.vue";
 import ClientForm from "@/components/ClientForm.vue";
@@ -35,6 +33,12 @@ let clientForm = reactive({
 });
 
 // Functions goes below
+const toggleDialogue = () => {
+  console.log("toggle");
+  isAddForm.value = !isAddForm.value;
+  console.log("toggled");
+};
+
 const submitClientForm = () => {
   alert(clientForm)
   toggleDialogue()
@@ -45,33 +49,39 @@ const showAlert = (string1, string2) => {
   alertMes.value = string1;
   alertType.value = string2;
   isMessage.value = true;
-  console.log(alertMes.value);
-  console.log(isMessage.value);
-  setInterval(() => {
+  setTimeout(() => {
     isMessage.value = false;
+    console.log("alerted")
   }, 5000);
 };
 
-const toggleDialogue = () => {
-  console.log("show form");
-  isAddForm.value = !isAddForm.value;
-  console.log(isAddForm.value);
-};
+
 
 onMounted(async () => {
   try {
     // Verify token and get user data in one request
   const token = localStorage.getItem("token");
-    const res = await api.get("/dashboard",{
-      headers: { token: `${token}` }
-    });
-    user.value = res.data; // Assign to .value for refs
-    showAlert(`${res.data.user_name} Welcome`, "success");
+  let data = JSON.parse(localStorage.getItem("duserdata"))
+  if(token){
+    console.log("Welcome to Dashboard")
+    if(!data){
+      const res = await api.get("/dashboard",{headers: { token: `${token}` }});
+      data = res.data
+      localStorage.setItem("duserdata", JSON.stringify(data))
+    }
+
+    user.value = data; // Assign to .value for refs
+  } else {
+    localStorage.removeItem("duserdata");
+    window.location.href = "/login";
+  }
+    showAlert(`${user.value.user_name} Welcome`, "success");
   } catch (err) {
     // Redirect to login if unauthorized
     showAlert(err.response.data, "error");
+    console.log(err);
     localStorage.removeItem("token"); // Clear invalid token
-    window.location.href = "/login";
+    // window.location.href = "/login";
   } finally {
     isLoading.value = false;
   }
@@ -111,11 +121,13 @@ const formatPhoneNumber = (phone) => {
 </script>
 
 <template>
+  <!-- still loading user data from server -->
+  <div v-show="isLoading">Loading dashboard...</div>
+
   <!-- Add form Dialogue -->
   <LeftDialogue
-    :onClickToShow="toggleDialogue"
+    :toggleDialogueBtn="toggleDialogue"
     :actionClickSubmit="submitClientForm"
-    :close-dialogue="toggleDialogue"
     v-show="isAddForm"
   >
     <ClientForm
@@ -137,25 +149,26 @@ const formatPhoneNumber = (phone) => {
     :type="alertType"
   />
 
-  <!-- Dashboard View -->
-  <DashboardSkeleton
-    :onClickToShow="toggleDialogue"
+   <!-- Dashboard View -->
+   <DashboardSkeleton
+    :toggleDialogueBtn="toggleDialogue"
     :hBtnShow="list.length"
     hBtnMsg="Add Client"
     :user="user"
     pageTitle="Customers List"
-    :isLoading="isLoading"
+    v-if="!isLoading"
   >
     <!-- enter your content below (slots) -->
     <!-- no list found -->
     <NullList
       v-show="!list.length"
-      :nullImg="customernull"
-      null-text="Manage your client base. Structure your Customers list using labels and group"
+      :nullImg="customerNull"
+      null-text="Add your product, services, cartalogue. seemless management, manage product and pricing."
       null-btn-text="Add Customer"
-      :null-btn-action="toggleDialogue"
+      :toggleDialogueBtn="toggleDialogue"
     />
 
+    <!-- list available -->
     <!-- list available -->
     <div v-show="list" class="contacts-container">
       <!-- Group clients by initial and sort alphabetically -->
@@ -186,6 +199,7 @@ const formatPhoneNumber = (phone) => {
         </div>
       </div>
     </div>
+
     <!-- enter of content (slot) -->
   </DashboardSkeleton>
 </template>
@@ -291,3 +305,4 @@ const formatPhoneNumber = (phone) => {
   }
 }
 </style>
+

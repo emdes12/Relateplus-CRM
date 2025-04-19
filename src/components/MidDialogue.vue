@@ -12,6 +12,9 @@ defineProps({
   actionClickSubmit: {
     type: Function,
   },
+  closeDialogue: {
+    type: Function,
+  },
 });
 </script>
 
@@ -19,12 +22,12 @@ defineProps({
   <div class="dialogue-bg">
     <div class="dialogue-container">
       <div class="dialogue-header">
-        <h4>{{ dialogHeader || "Add Contact" }}</h4>
+        <h4>{{ dialogHeader || "Middle Dialogue" }}</h4>
         <span @click="toggleDialogueBtn" class="close">+</span>
       </div>
       <div class="dialogue-content"><slot></slot></div>
       <div class="dialogun-actions">
-        <BtnDbSec :onClickToCancel="toggleDialogueBtn" msg="Cancel" />
+        <BtnDbSec :onClickToCancel="closeDialogue" msg="Cancel" />
         <BtnDbPry :onClickToAct="actionClickSubmit" msg="Save" />
       </div>
     </div>

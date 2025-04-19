@@ -14,7 +14,7 @@ defineProps({
     type: String,
     required: false,
   },
-  nullBtnAction: {
+  toggleDialogueBtn: {
     type: Function,
     required: false,
   },
@@ -25,7 +25,7 @@ defineProps({
   <div class="nulll">
     <img :src="nullImg" alt="no client yet" />
     <span>{{ nullText }}</span>
-    <BtnDbPry :onClickToAct="nullBtnAction" :msg="nullBtnText" />
+    <BtnDbPry :onClickToAct="toggleDialogueBtn" :msg="nullBtnText" />
   </div>
 </template>
 

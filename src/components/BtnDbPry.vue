@@ -18,7 +18,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="btn-primary"  v-on:click="onClickToAct" :style="'width: ' + wdt">{{ msg }}</div>
+  <div class="btn-primary"  @click="onClickToAct" :style="'width: ' + wdt">{{ msg }}</div>
 </template>
 
 <style scoped>
