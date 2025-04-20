@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, onBeforeUnmount, reactive } from "vue";
+import { ref, onMounted, computed, onBeforeUnmount, reactive, onBeforeMount } from "vue";
 import AlertMessage from "@/components/AlertMessage.vue";
 import DashboardSkeleton from "@/components/DashboardSkeleton.vue";
 import LeftDialogue from "@/components/LeftDialogue.vue";
@@ -9,11 +9,10 @@ import NullList from "@/components/NullList.vue";
 import ClientForm from "@/components/ClientForm.vue";
 import apiMode from "../../../apiMode";
 
-
 const api = apiMode;
 
 // declaration of value below
-const list = customersList;
+let list = ref(null);
 let user = ref(null); // Use ref for reactive data
 let isLoading = ref(true); // Add loading state
 let isMessage = ref(false);
@@ -39,11 +38,29 @@ const toggleDialogue = () => {
   console.log("toggled");
 };
 
-const submitClientForm = () => {
-  alert(clientForm)
-  toggleDialogue()
-  showAlert("Form Added", "success")
-}
+const submitClientForm = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    await api.post("/dashboard/customers", clientForm, {
+      headers: { token: `${token}` },
+    });
+    toggleDialogue();
+    showAlert("Customer Added", "success");
+    clientForm.value = {
+      name: "",
+      number: "",
+      email: "",
+      label: "",
+      location: "",
+      birthday: "",
+      note: "",
+    };
+  } catch (error) {
+    console.log(error);
+    toggleDialogue();
+    showAlert(error.response.data, "error");
+  }
+};
 
 const showAlert = (string1, string2) => {
   alertMes.value = string1;
@@ -51,30 +68,53 @@ const showAlert = (string1, string2) => {
   isMessage.value = true;
   setTimeout(() => {
     isMessage.value = false;
-    console.log("alerted")
+    console.log("alerted");
   }, 5000);
 };
 
+const getClientList = async () => {
+  const token = localStorage.getItem("token");
+  try {
+    console.log(token);
 
+    const data = await api.get("/dashboard/customers", {
+      headers: { token: `${token}` },
+    });
+    console.log("data", data.data);
+    const dl = data.data;
+    list.value = dl.map(lst => {
+      return {
+        client_initial: lst.client_name[0],
+        ...lst
+      }
+    })
+    console.log("List", list.value);
+  } catch (error) {
+    console.error(error.response);
+  }
+};
 
 onMounted(async () => {
   try {
     // Verify token and get user data in one request
-  const token = localStorage.getItem("token");
-  let data = JSON.parse(localStorage.getItem("duserdata"))
-  if(token){
-    console.log("Welcome to Dashboard")
-    if(!data){
-      const res = await api.get("/dashboard",{headers: { token: `${token}` }});
-      data = res.data
-      localStorage.setItem("duserdata", JSON.stringify(data))
-    }
+    const token = localStorage.getItem("token");
+    let data = JSON.parse(localStorage.getItem("duserdata"));
+    if (token) {
+      console.log("Welcome to Dashboard");
+      if (!data) {
+        const res = await api.get("/dashboard", {
+          headers: { token: `${token}` },
+        });
+        data = res.data;
+        localStorage.setItem("duserdata", JSON.stringify(data));
+      }
 
-    user.value = data; // Assign to .value for refs
-  } else {
-    localStorage.removeItem("duserdata");
-    window.location.href = "/login";
-  }
+      getClientList();
+      user.value = data; // Assign to .value for refs
+    } else {
+      localStorage.removeItem("duserdata");
+      window.location.href = "/login";
+    }
     showAlert(`${user.value.user_name} Welcome`, "success");
   } catch (err) {
     // Redirect to login if unauthorized
@@ -111,13 +151,6 @@ const groupedClients = computed(() => {
     }, {});
 });
 
-// Format phone number with country code
-const formatPhoneNumber = (phone) => {
-  if (phone.startsWith("0")) {
-    return `+234 ${phone.substring(1)}`;
-  }
-  return phone;
-};
 </script>
 
 <template>
@@ -149,8 +182,8 @@ const formatPhoneNumber = (phone) => {
     :type="alertType"
   />
 
-   <!-- Dashboard View -->
-   <DashboardSkeleton
+  <!-- Dashboard View -->
+  <DashboardSkeleton
     :toggleDialogueBtn="toggleDialogue"
     :hBtnShow="list.length"
     hBtnMsg="Add Client"
@@ -160,6 +193,7 @@ const formatPhoneNumber = (phone) => {
   >
     <!-- enter your content below (slots) -->
     <!-- no list found -->
+    <p>{{ list.length }}</p>
     <NullList
       v-show="!list.length"
       :nullImg="customerNull"
@@ -192,8 +226,8 @@ const formatPhoneNumber = (phone) => {
                 {{ client.client_initial }}
               </div>
               <h3>{{ client.client_name }}</h3>
-              <p class="phone">{{ formatPhoneNumber(client.client_phone) }}</p>
-              <p class="email">{{ client.client_email }}</p>
+              <p class="phone">{{ client.client_number }}</p>
+              <p v-if="client.client_email" class="email">{{ client.client_email }}</p>
             </div>
           </div>
         </div>
@@ -305,4 +339,3 @@ const formatPhoneNumber = (phone) => {
   }
 }
 </style>
-

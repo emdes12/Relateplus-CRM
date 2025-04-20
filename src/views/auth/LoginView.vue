@@ -71,7 +71,7 @@ const submitLogin = async () => {
     console.log(result.data);
 
     // Redirect to dashboard
-    window.location.href = "/dashboard/services";
+    window.location.href = "/dashboard";
   } catch (error) {
     console.error("Login failed:", error.response.data);
     // Add error message display to user

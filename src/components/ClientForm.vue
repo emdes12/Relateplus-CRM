@@ -64,6 +64,7 @@ const emit = defineEmits([
       :value="clientBdayValue"
       @input="emit('update:clientBdayValue', $event.target.value)"
     />
+    <p>We will send you reminder on their birthday</p>
     <textarea
       name="clientNote"
       :vale="clientNoteValue"
