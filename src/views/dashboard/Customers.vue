@@ -157,6 +157,15 @@ const groupedClients = computed(() => {
   <!-- still loading user data from server -->
   <div v-show="isLoading">Loading dashboard...</div>
 
+  <!-- Alert message for notifications -->
+  <AlertMessage
+    v-show="isMessage"
+    pageTitle="Customers"
+    :msg="alertMes"
+    :type="alertType"
+  />
+
+
   <!-- Add form Dialogue -->
   <LeftDialogue
     :toggleDialogueBtn="toggleDialogue"
@@ -173,15 +182,6 @@ const groupedClients = computed(() => {
       v-model:clientNoteValue="clientForm.note"
     />
   </LeftDialogue>
-
-  <!-- Alert message for notifications -->
-  <AlertMessage
-    v-show="isMessage"
-    pageTitle="Customers"
-    :msg="alertMes"
-    :type="alertType"
-  />
-
   <!-- Dashboard View -->
   <DashboardSkeleton
     :toggleDialogueBtn="toggleDialogue"
@@ -193,7 +193,6 @@ const groupedClients = computed(() => {
   >
     <!-- enter your content below (slots) -->
     <!-- no list found -->
-    <p>{{ list.length }}</p>
     <NullList
       v-show="!list.length"
       :nullImg="customerNull"
