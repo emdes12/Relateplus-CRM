@@ -64,7 +64,7 @@ const submitStaffForm = async () => {
       birthday: "",
       note: "",
     };
-    // getClientList();
+    // getStaffList();
   } catch (error) {
     console.log(error);
     toggleDialogue();
@@ -75,6 +75,32 @@ const submitStaffForm = async () => {
 
     // Add error message display to user
     showAlert(error.response.data, "error");
+  }
+};
+
+// function to get Staff List
+const getStaffList = async () => {
+  const token = localStorage.getItem("token");
+  try {
+    console.log(token);
+
+    const data = await api.get("/dashboard/staffs", {
+      headers: { token: `${token}` },
+    });
+    console.log("data", data.data);
+    const dl = data.data;
+    list.value = dl.map((lst) => {
+      return {
+        staff_initial: lst.staff_name[0].toUpperCase(),
+        ...lst,
+      };
+    });
+    console.log("List", list.value);
+  } catch (error) {
+    console.error(error.response);
+    localStorage.removeItem("duserdata");
+    localStorage.removeItem("token");
+    window.location.href = "/login";
   }
 };
 
@@ -111,6 +137,7 @@ onMounted(async () => {
       }
 
       user.value = data; // Assign to .value for refs
+      getStaffList()
     } else {
       localStorage.removeItem("duserdata");
       window.location.href = "/login";
@@ -181,11 +208,38 @@ onMounted(async () => {
 
     <!-- list available -->
 
+    <div class="staffs-body" v-if="list.length">
+      <div class="staffs-caontainer">
+        <div class="staff-card">
+          <div class="staff-initial" :style="{ backgroundColor: staff_color}">
+            <div class="circle"><h3>{{ staff_initial || "M" }}</h3></div>
+          </div>
+          <div class="staff-details">
+            <h3>{{ staff_name || "Murtadoh" }}</h3>
+            <h4>{{ staff_role || "Manager" }}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="staffs-chat">
+        member chat arena
+      </div>
+    </div>
+
     <!-- enter of content (slot) -->
   </DashboardSkeleton>
 </template>
 
 <style scoped>
+.staffs-body {
+  width: 100%;
+  position: relative;
+}
+
+.staffs-chat {
+  width: 300px;
+  background-color: palegreen;
+  width: calc(100vh - 200px);
+}
 .initials {
   width: 80px;
   height: 80px;
