@@ -14,6 +14,7 @@ const api = apiMode;
 const list = ref([]);
 let user = ref(null); // Use ref for reactive data
 let isLoading = ref(true); // Add loading state
+let isChatSection = ref(true);
 let isMessage = ref(false);
 let isAddForm = ref(false);
 let alertMes = ref("Successfully logged in");
@@ -64,7 +65,7 @@ const submitStaffForm = async () => {
       birthday: "",
       note: "",
     };
-    // getStaffList();
+    getStaffList();
   } catch (error) {
     console.log(error);
     toggleDialogue();
@@ -209,19 +210,25 @@ onMounted(async () => {
     <!-- list available -->
 
     <div class="staffs-body" v-if="list.length">
-      <div class="staffs-caontainer">
-        <div class="staff-card">
-          <div class="staff-initial" :style="{ backgroundColor: staff_color}">
-            <div class="circle"><h3>{{ staff_initial || "M" }}</h3></div>
+      <div class="staffs-container">
+        <div class="staff-card" v-for="staff in list">
+          <div class="staff-initial" :style="{ backgroundColor: staff.staff_color}">
+            <div class="circle"><h3>{{ staff.staff_initial || "M" }}</h3></div>
           </div>
-          <div class="staff-details">
-            <h3>{{ staff_name || "Murtadoh" }}</h3>
-            <h4>{{ staff_role || "Manager" }}</h4>
+          <div class="staff-details" :style="{ color: staff.staff_color}">
+            <h3>{{ staff.staff_name || "Murtadoh" }}</h3>
+            <h4>{{ staff.staff_role || "Manager" }}</h4>
           </div>
         </div>
       </div>
       <div class="staffs-chat">
-        member chat arena
+        <div class="chat-head">
+          <img src="../../assets/icons/arrow.svg" alt="arrow" />
+          <p>Chat</p>
+        </div>
+        <div class="chat-body" v-show="isChatSection">
+
+        </div>
       </div>
     </div>
 
@@ -230,16 +237,82 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.staff-details {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+h3, h4 {
+  font-size: 20px;
+}
+
+.staff-card {
+  width: 200px;
+  background-color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.staff-card:hover {
+  transform: translateY(-5px);
+}
+
+
+.staff-initial {
+  width: 100%;
+  padding: 25px;
+  display: grid;
+  place-items: center;
+}
+
+.staff-initial .circle {
+  width: 100px;
+  height: 100px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  border-radius: 50%;
+  background-color: #ffffff79;
+}
+
 .staffs-body {
   width: 100%;
   position: relative;
 }
 
+.staffs-container {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+}
+
 .staffs-chat {
   width: 300px;
   background-color: palegreen;
-  width: calc(100vh - 200px);
+  width: 300px;
+  position: fixed;
+  bottom: 0;
+  right: 40px;
+  z-index: 200;
 }
+
+.chat-head {
+  background-color: #FDF2F2;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  justify-content: start;
+  padding: 10px 20px;
+}
+
+.chat-head p {
+  font-weight: 600;
+}
+
 .initials {
   width: 80px;
   height: 80px;
