@@ -58,6 +58,7 @@ const emit = defineEmits([
       :value="clientLocationValue"
       @input="emit('update:clientLocationValue', $event.target.value)"
     />
+    <p style="width: 100%; padding-left: 10px; line-height: 0; padding-top: 10px;">Birthday Date</p>
     <input
       type="date"
       placeholder="Client Name:"
@@ -67,7 +68,7 @@ const emit = defineEmits([
     <p>We will send you reminder on their birthday</p>
     <textarea
       name="clientNote"
-      :vale="clientNoteValue"
+      :value="clientNoteValue"
       @input="emit('update:clientNoteValue', $event.target.value)"
       placeholder="Client Note:"
     ></textarea>

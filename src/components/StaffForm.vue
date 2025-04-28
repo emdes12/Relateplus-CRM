@@ -6,69 +6,71 @@ import BtnPry from "./BtnPry.vue";
 import apiMode from "../../apiMode";
 
 defineProps({
-    clientNameValue: String,
-    clientNumberValue: String,
-    clientEmailValue: String,
-    clientLabelValue: String,
-    clientLocationValue: String,
-    clientBdayValue: String,
-    clientNoteValue: String,
+    staffNameValue: String,
+    staffNumberValue: String,
+    staffEmailValue: String,
+    staffRoleValue: String,
+    staffEmpDateValue: String,
+    staffBdayValue: String,
+    staffNoteValue: String,
 })
 
 const emit = defineEmits([
-  "update:clientNameValue",
-  "update:clientNumberValue",
-  "update:clientEmailValue",
-  "update:clientLabelValue",
-  "update:clientLocationValue",
-  "update:clientBdayValue",
-  "update:clientNoteValue",
+  "update:staffNameValue",
+  "update:staffNumberValue",
+  "update:staffEmailValue",
+  "update:staffRoleValue",
+  "update:staffEmpDateValue",
+  "update:staffBdayValue",
+  "update:staffNoteValue",
 ]);
 </script>
 <template>
   <div>
     <input
       type="text"
-      placeholder="Client Name:"
-      :value="clientNameValue"
-      @input="emit('update:clientNameValue', $event.target.value)"
+      placeholder="Staff Name:"
+      :value="staffNameValue"
+      @input="emit('update:staffNameValue', $event.target.value)"
     />
     <input
       type="number"
       placeholder="+234:"
       min="1"
-      :value="clientNumberValue"
-      @input="emit('update:clientNumberValue', $event.target.value)"
+      :value="staffNumberValue"
+      @input="emit('update:staffNumberValue', $event.target.value)"
     />
     <input
       type="email"
-      placeholder="Client Email:"
-      :value="clientEmailValue"
-      @input="emit('update:clientEmailValue', $event.target.value)"
+      placeholder="Staff Email:"
+      :value="staffEmailValue"
+      @input="emit('update:staffEmailValue', $event.target.value)"
     />
     <input
       type="text"
-      placeholder="Label/Group:"
-      :value="clientLabelValue"
-      @input="emit('update:clientLabelValue', $event.target.value)"
+      placeholder="Staff Role"
+      :value="staffRoleValue"
+      @input="emit('update:staffRoleValue', $event.target.value)"
     />
+    <p style="width: 100%; padding-left: 10px; line-height: 0; padding-top: 10px;">Employement Date</p>
     <input
-      type="text"
-      placeholder="Location:"
-      :value="clientLocationValue"
-      @input="emit('update:clientLocationValue', $event.target.value)"
+    type="date"
+    placeholder="Date Employed:"
+    :value="staffEmpDateValue"
+    @input="emit('update:staffEmpDateValue', $event.target.value)"
     />
+    <p style="width: 100%; padding-left: 10px; line-height: 0; padding-top: 10px;">Birthday Date</p>
     <input
       type="date"
-      placeholder="Client Name:"
-      :value="clientBdayValue"
-      @input="emit('update:clientBdayValue', $event.target.value)"
+      placeholder="Staff Name:"
+      :value="staffBdayValue"
+      @input="emit('update:staffBdayValue', $event.target.value)"
     />
     <textarea
-      name="clientNote"
-      :vale="clientNoteValue"
-      @input="emit('update:clientNoteValue', $event.target.value)"
-      placeholder="Client Note:"
+      name="staffNote"
+      :value="staffNoteValue"
+      @input="emit('update:staffNoteValue', $event.target.value)"
+      placeholder="Staff Note:"
     ></textarea>
   </div>
 </template>

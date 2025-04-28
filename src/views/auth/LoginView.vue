@@ -54,7 +54,7 @@ const submitLogin = async () => {
     });
 
     // Handle successful login
-    console.log("Login successful:", response.data);
+    // console.log("Login successful:", response.data);
     showAlert("Login successful", "success");
 
     // Store token (if using JWT)
@@ -66,9 +66,9 @@ const submitLogin = async () => {
 
     const result = await api.get("/auth/is-verify", config);
     if (!result) {
-      return alert(result);
+      return console.log(result);
     }
-    console.log(result.data);
+    // console.log(result.data);
 
     // Redirect to dashboard
     window.location.href = "/dashboard";

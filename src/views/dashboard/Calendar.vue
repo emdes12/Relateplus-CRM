@@ -5,7 +5,7 @@ import AlertMessage from "@/components/AlertMessage.vue";
 import DashboardSkeleton from "@/components/DashboardSkeleton.vue";
 import BtnDbPry from "@/components/BtnDbPry.vue";
 import LeftDialogue from "@/components/LeftDialogue.vue";
-import serviceNull from "@/assets/images/services-box.png";
+import calendarNull from "@/assets/images/calendarNull.png";
 import { customersList } from "../data";
 import NullList from "@/components/NullList.vue";
 import ServiceForm from "@/components/ServiceForm.vue";
@@ -164,7 +164,7 @@ const formatPhoneNumber = (phone) => {
     <!-- no list found -->
     <NullList
       v-show="!list.length"
-      :nullImg="serviceNull"
+      :nullImg="calendarNull"
       null-text="Assign and task, create event and management your calendar seamlessly."
       null-btn-text="Add to calendar"
       :toggleDialogueBtn="toggleDialogue"

@@ -15,19 +15,24 @@ defineProps({
   closeDialogue: {
     type: Function,
   },
+  headerColor : {
+    default: "#ffc107",
+    type: String,
+    required: false,
+  }
 });
 </script>
 
 <template>
   <div class="dialogue-bg">
     <div class="dialogue-container">
-      <div class="dialogue-header">
+      <div class="dialogue-header" :style="`background-color: ${headerColor}; ${(headerColor === 'red') ? 'color: white;' : 'color: black;'}`">
         <h4>{{ dialogHeader || "Middle Dialogue" }}</h4>
         <span @click="toggleDialogueBtn" class="close">+</span>
       </div>
       <div class="dialogue-content"><slot></slot></div>
       <div class="dialogun-actions">
-        <BtnDbSec :onClickToCancel="closeDialogue" msg="Cancel" />
+        <BtnDbSec :onClickToCancel="toggleDialogueBtn" msg="Cancel" />
         <BtnDbPry :onClickToAct="actionClickSubmit" msg="Save" />
       </div>
     </div>
@@ -44,27 +49,31 @@ defineProps({
   height: 100vh;
   z-index: 100000;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
   background-color: rgba(0, 0, 0, 0.468);
 }
 
 .dialogue-container {
   background: #fff;
-  border-radius: 10px 0 0 10px;
-  width: 350px;
-  height: 100vh;
+  border-radius: 10px;
+  min-width: 350px;
+  max-width: 80%;
+  height: auto;
+  max-height: 100vh;
   display: flex;
   align-items: center;
   flex-direction: column;
   justify-content: space-between;
-  overflow: hidden;
+  overflow-y: hidden;
 }
 
 .dialogue-content {
   width: 100%;
   padding: 20px;
   flex: 0.9;
-  overflow-y: scroll;
+  min-height: 120px;
+  overflow-y: auto;
 }
 
 .dialogue-header {
@@ -73,7 +82,7 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30px 20px;
+  padding: 20px 30px;
 }
 
 h4 {

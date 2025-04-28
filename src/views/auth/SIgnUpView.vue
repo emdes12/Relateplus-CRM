@@ -59,6 +59,7 @@ const createAccount = async () => {
       name: nameValue.value,
       email: emailValue.value,
       password: passValue.value,
+      permision: "admin",
     });
 
     // Handle successful login

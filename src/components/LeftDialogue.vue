@@ -6,6 +6,11 @@ defineProps({
     type: String,
     required: false,
   },
+  actionText: {
+    type: String,
+    required: false,
+    default: "Save",
+  },
   toggleDialogueBtn: {
     type: Function,
   },
@@ -25,7 +30,7 @@ defineProps({
       <div class="dialogue-content"><slot></slot></div>
       <div class="dialogun-actions">
         <BtnDbSec :onClickToCancel="toggleDialogueBtn" msg="Cancel" />
-        <BtnDbPry :onClickToAct="actionClickSubmit" msg="Save" />
+        <BtnDbPry :onClickToAct="actionClickSubmit" :msg="actionText" />
       </div>
     </div>
   </div>
@@ -70,7 +75,7 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30px 20px;
+  padding: 20px 30px;
 }
 
 h4 {

@@ -2,14 +2,11 @@
 import { ref, onMounted, computed, onBeforeUnmount, reactive } from "vue";
 import AlertMessage from "@/components/AlertMessage.vue";
 import DashboardSkeleton from "@/components/DashboardSkeleton.vue";
-import BtnDbPry from "@/components/BtnDbPry.vue";
-import LeftDialogue from "@/components/LeftDialogue.vue";
-import staffNull from "@/assets/images/services-box.png";
-import { customersList } from "../data";
+import MidDialogue from "@/components/MidDialogue.vue";
+import staffNull from "@/assets/images/staffNull.png";
 import NullList from "@/components/NullList.vue";
 import StaffForm from "@/components/StaffForm.vue";
 import apiMode from "../../../apiMode";
-
 
 const api = apiMode;
 
@@ -23,25 +20,66 @@ let alertMes = ref("Successfully logged in");
 let alertType = ref("success");
 
 let staffForm = reactive({
-  // client Form values
+  // staff Form values
   name: "",
   number: "",
   email: "",
-  label: "",
-  location: "",
+  role: "",
+  employed: "",
   birthday: "",
   note: "",
 });
 
 // Functions goes below
-const submitStaffForm = () => {
-  alert(staffForm)
-  toggleDialogue()
-  showAlert("Form Created Successfully", "success")
-}
+const submitStaffForm = async () => {
+
+  console.log(staffForm.name);
+
+  const { name, email, role } = staffForm;
+  try {
+    const response = await api.post("/auth/register", {
+      name: name,
+      email: email,
+      password: "Staff123",
+      permision: "staff",
+    });
+
+    // Handle successful login
+    console.log("Registration successful:", response.data);
+
+    // Staff detail storing
+    try {
+    const token = localStorage.getItem("token");
+    await api.post("/dashboard/staffs", staffForm, {
+      headers: { token: `${token}` },
+    });
+    toggleDialogue();
+    showAlert("Staff Added Successfully", "success");
+    staffForm.value = {
+      name: "",
+      number: "",
+      email: "",
+      role: "",
+      employed: "",
+      birthday: "",
+      note: "",
+    };
+    // getClientList();
+  } catch (error) {
+    console.log(error);
+    toggleDialogue();
+    showAlert(error.response.data, "error");
+  }
+  } catch (error) {
+    console.error("failed:", error.response.data);
+
+    // Add error message display to user
+    showAlert(error.response.data, "error");
+  }
+};
 
 const showAlert = (string1, string2) => {
-  console.log("aleert")
+  console.log("aleert");
   alertMes.value = string1;
   alertType.value = string2;
   isMessage.value = true;
@@ -49,7 +87,7 @@ const showAlert = (string1, string2) => {
   console.log(isMessage.value);
   setTimeout(() => {
     isMessage.value = false;
-    console.log("alerted")
+    console.log("alerted");
   }, 5000);
 };
 
@@ -60,22 +98,24 @@ const toggleDialogue = () => {
 onMounted(async () => {
   try {
     // Verify token and get user data in one request
-  const token = localStorage.getItem("token");
-  let data = JSON.parse(localStorage.getItem("duserdata"))
-  if(token){
-    console.log("Welcome to Dashboard")
-    if(!data){
-      const res = await api.get("/dashboard",{headers: { token: `${token}` }});
-      data = res.data
-      localStorage.setItem("duserdata", JSON.stringify(data))
-    }
+    const token = localStorage.getItem("token");
+    let data = JSON.parse(localStorage.getItem("duserdata"));
+    if (token) {
+      console.log("Welcome to Dashboard");
+      if (!data) {
+        const res = await api.get("/dashboard", {
+          headers: { token: `${token}` },
+        });
+        data = res.data;
+        localStorage.setItem("duserdata", JSON.stringify(data));
+      }
 
-    user.value = data; // Assign to .value for refs
-  } else {
-    localStorage.removeItem("duserdata");
-    window.location.href = "/login";
-  }
-    console.log("Our user", user.value.length)
+      user.value = data; // Assign to .value for refs
+    } else {
+      localStorage.removeItem("duserdata");
+      window.location.href = "/login";
+    }
+    console.log("Our user", user.value.length);
   } catch (err) {
     // Redirect to login if unauthorized
     console.log(err);
@@ -87,38 +127,6 @@ onMounted(async () => {
     isLoading.value = false;
   }
 });
-
-// Group clients by initial and sort
-const groupedClients = computed(() => {
-  const groups = {};
-  list.value.forEach((client) => {
-    if (!groups[client.client_initial]) {
-      groups[client.client_initial] = [];
-    }
-    groups[client.client_initial].push(client);
-  });
-
-  // Sort each group alphabetically
-  Object.keys(groups).forEach((initial) => {
-    groups[initial].sort((a, b) => a.client_name.localeCompare(b.client_name));
-  });
-
-  // Sort the initials alphabetically
-  return Object.keys(groups)
-    .sort()
-    .reduce((acc, key) => {
-      acc[key] = groups[key];
-      return acc;
-    }, {});
-});
-
-// Format phone number with country code
-const formatPhoneNumber = (phone) => {
-  if (phone.startsWith("0")) {
-    return `+234 ${phone.substring(1)}`;
-  }
-  return phone;
-};
 </script>
 
 <template>
@@ -126,21 +134,23 @@ const formatPhoneNumber = (phone) => {
   <div v-show="isLoading">Loading dashboard...</div>
 
   <!-- Add form Dialogue -->
-  <LeftDialogue
+  <MidDialogue
     :toggleDialogueBtn="toggleDialogue"
     :actionClickSubmit="submitStaffForm"
     v-show="isAddForm"
+    dialog-header="Add Staff"
+    headerColor="palegreen"
   >
     <StaffForm
-      v-model:clientNameValue="staffForm.name"
-      v-model:clientNumberValue="staffForm.number"
-      v-model:clientEmailValue="staffForm.email"
-      v-model:clientLabelValue="staffForm.label"
-      v-model:clientLocationValue="staffForm.location"
-      v-model:clientBdayValue="staffForm.birthday"
-      v-model:clientNoteValue="staffForm.note"
+      v-model:staffNameValue="staffForm.name"
+      v-model:staffNumberValue="staffForm.number"
+      v-model:staffEmailValue="staffForm.email"
+      v-model:staffRoleValue="staffForm.role"
+      v-model:staffEmpDateValue="staffForm.employed"
+      v-model:staffBdayValue="staffForm.birthday"
+      v-model:staffNoteValue="staffForm.note"
     />
-  </LeftDialogue>
+  </MidDialogue>
 
   <!-- Alert message for notifications -->
   <AlertMessage
@@ -150,8 +160,8 @@ const formatPhoneNumber = (phone) => {
     :type="alertType"
   />
 
-   <!-- Dashboard View -->
-   <DashboardSkeleton
+  <!-- Dashboard View -->
+  <DashboardSkeleton
     :toggleDialogueBtn="toggleDialogue"
     :hBtnShow="list.length"
     hBtnMsg="Add Employee"

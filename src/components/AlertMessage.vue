@@ -22,7 +22,7 @@ defineProps({
   padding: 12px 20px;
   color: #fff;
   width: fit-content;
-  position: absolute;
+  position: fixed;
   top: 80px;
   right: 50px;
 }

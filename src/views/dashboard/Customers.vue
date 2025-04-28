@@ -1,10 +1,21 @@
 <script setup>
-import { ref, onMounted, computed, onBeforeUnmount, reactive, onBeforeMount } from "vue";
+import {
+  ref,
+  onMounted,
+  computed,
+  onBeforeUnmount,
+  reactive,
+  onBeforeMount,
+} from "vue";
 import AlertMessage from "@/components/AlertMessage.vue";
 import DashboardSkeleton from "@/components/DashboardSkeleton.vue";
 import LeftDialogue from "@/components/LeftDialogue.vue";
+import MidDialogue from "@/components/MidDialogue.vue";
 import customerNull from "@/assets/images/customersnull.png";
-import { customersList } from "../data";
+import emailIcon from "@/assets/icons/emailIcon.svg";
+import editIcon from "@/assets/icons/editIcon.svg";
+import phoneIcon from "@/assets/icons/phoneIcon.svg";
+import deleteIcon from "@/assets/icons/deleteIcon.svg";
 import NullList from "@/components/NullList.vue";
 import ClientForm from "@/components/ClientForm.vue";
 import apiMode from "../../../apiMode";
@@ -15,8 +26,10 @@ const api = apiMode;
 let list = ref(null);
 let user = ref(null); // Use ref for reactive data
 let isLoading = ref(true); // Add loading state
-let isMessage = ref(false);
+let isMessage = ref(true);
 let isAddForm = ref(false);
+let isUpdateForm = ref(false);
+let isDeleteDialog = ref(false);
 let alertMes = ref("Successfully logged in");
 let alertType = ref("success");
 
@@ -31,13 +44,110 @@ let clientForm = reactive({
   note: "",
 });
 
+let clientUpdateForm = reactive({
+  // client Form values
+  name: "",
+  number: "",
+  email: "",
+  label: "",
+  location: "",
+  birthday: "",
+  note: "",
+});
+
 // Functions goes below
 const toggleDialogue = () => {
-  console.log("toggle");
   isAddForm.value = !isAddForm.value;
-  console.log("toggled");
 };
 
+const toggleUpdateDialogue = () => {
+  isUpdateForm.value = !isUpdateForm.value;
+};
+
+const toggleDeleteDialogue = () => {
+  isDeleteDialog.value = !isDeleteDialog.value;
+};
+
+const updateClientDialogue = (id) => {
+  const clientList = list.value;
+  localStorage.setItem("Client_id", id);
+  clientList.filter((client) => {
+    if (client.client_id === id) {
+      clientUpdateForm.name = client.client_name;
+      clientUpdateForm.number = client.client_number;
+      clientUpdateForm.email = client.client_email;
+      clientUpdateForm.label = client.client_label;
+      clientUpdateForm.location = client.client_location;
+      clientUpdateForm.birthday = client.client_birthday;
+      clientUpdateForm.note = client.client_note;
+    }
+  });
+
+  toggleUpdateDialogue();
+  console.log(clientUpdateForm);
+};
+
+// client delete handler
+const deleteClientDialogue = async (id) => {
+  localStorage.setItem("client_id", id)
+  toggleDeleteDialogue()
+}
+
+const deleteClient = async () =>{
+  try {
+    const id = localStorage.getItem("client_id")
+    const token = localStorage.getItem("token");
+    const data = await api.delete(`/dashboard/customers/${id}`, {
+      headers: { token: `${token}` },
+    });
+    const dl = data.data;
+    list.value = dl.map((lst) => {
+      return {
+        client_initial: lst.client_name[0].toUpperCase(),
+        ...lst,
+      };
+    });
+
+    showAlert("Client deleted successffully");
+    toggleDeleteDialogue()
+  } catch (error) {
+    console.log(error);
+    toggleDeleteDialogue();
+    showAlert(error.response.data, "error");
+  }
+}
+
+// client update submit handler
+const submitClientUpdate = async () => {
+  try {
+    console.log("updae form", clientUpdateForm);
+
+    const id = localStorage.getItem("Client_id");
+    const token = localStorage.getItem("token");
+    await api.patch(`/dashboard/customers/${id}`, clientUpdateForm, {
+      headers: { token: `${token}` },
+    });
+    getClientList();
+    toggleUpdateDialogue();
+    showAlert("Customer detail successfully updated", "success");
+    clientUpdateForm.value = {
+      name: "",
+      number: "",
+      email: "",
+      label: "",
+      location: "",
+      birthday: "",
+      note: "",
+    };
+    localStorage.removeItem("Client_id");
+  } catch (error) {
+    console.log(error);
+    toggleUpdateDialogue();
+    showAlert(error.response.data, "error");
+  }
+};
+
+// add client add form
 const submitClientForm = async () => {
   try {
     const token = localStorage.getItem("token");
@@ -55,6 +165,7 @@ const submitClientForm = async () => {
       birthday: "",
       note: "",
     };
+    getClientList();
   } catch (error) {
     console.log(error);
     toggleDialogue();
@@ -62,6 +173,7 @@ const submitClientForm = async () => {
   }
 };
 
+// alert handler
 const showAlert = (string1, string2) => {
   alertMes.value = string1;
   alertType.value = string2;
@@ -72,6 +184,7 @@ const showAlert = (string1, string2) => {
   }, 5000);
 };
 
+// function to get CLient List
 const getClientList = async () => {
   const token = localStorage.getItem("token");
   try {
@@ -82,18 +195,22 @@ const getClientList = async () => {
     });
     console.log("data", data.data);
     const dl = data.data;
-    list.value = dl.map(lst => {
+    list.value = dl.map((lst) => {
       return {
-        client_initial: lst.client_name[0],
-        ...lst
-      }
-    })
+        client_initial: lst.client_name[0].toUpperCase(),
+        ...lst,
+      };
+    });
     console.log("List", list.value);
   } catch (error) {
     console.error(error.response);
+    localStorage.removeItem("duserdata");
+    localStorage.removeItem("token");
+    window.location.href = "/login";
   }
 };
 
+// all unmount functions
 onMounted(async () => {
   try {
     // Verify token and get user data in one request
@@ -150,7 +267,6 @@ const groupedClients = computed(() => {
       return acc;
     }, {});
 });
-
 </script>
 
 <template>
@@ -164,7 +280,6 @@ const groupedClients = computed(() => {
     :msg="alertMes"
     :type="alertType"
   />
-
 
   <!-- Add form Dialogue -->
   <LeftDialogue
@@ -182,6 +297,39 @@ const groupedClients = computed(() => {
       v-model:clientNoteValue="clientForm.note"
     />
   </LeftDialogue>
+
+  <MidDialogue
+    dialog-header="Delete Client"
+    :toggleDialogueBtn="toggleDeleteDialogue"
+    :actionClickSubmit="deleteClient"
+    v-show="isDeleteDialog"
+    headerColor="red"
+  >
+    <div class="delete-dial">
+      <h3 style="font-size: 20px;">Are you sure you want to delete?</h3>
+      <p>This action is not reverseable</p>
+    </div>
+  </MidDialogue>
+
+  <!-- Update form Dialogue -->
+  <LeftDialogue
+    dialogHeader="Update Contact"
+    :toggleDialogueBtn="toggleUpdateDialogue"
+    :actionClickSubmit="submitClientUpdate"
+    actionText="Update"
+    v-show="isUpdateForm"
+  >
+    <ClientForm
+      v-model:clientNameValue="clientUpdateForm.name"
+      v-model:clientNumberValue="clientUpdateForm.number"
+      v-model:clientEmailValue="clientUpdateForm.email"
+      v-model:clientLabelValue="clientUpdateForm.label"
+      v-model:clientLocationValue="clientUpdateForm.location"
+      v-model:clientBdayValue="clientUpdateForm.birthday"
+      v-model:clientNoteValue="clientUpdateForm.note"
+    />
+  </LeftDialogue>
+
   <!-- Dashboard View -->
   <DashboardSkeleton
     :toggleDialogueBtn="toggleDialogue"
@@ -217,6 +365,14 @@ const groupedClients = computed(() => {
             :key="client.client_name"
             class="contact-card"
           >
+            <div class="contact-action-btns">
+              <span @click="updateClientDialogue(client.client_id)"
+                ><img :src="editIcon" alt="edit icon"
+              /></span>
+              <span @click="deleteClientDialogue(client.client_id)"
+                ><img :src="deleteIcon" alt="delete icon"
+              /></span>
+            </div>
             <div class="card-content">
               <div
                 class="initials"
@@ -225,8 +381,14 @@ const groupedClients = computed(() => {
                 {{ client.client_initial }}
               </div>
               <h3>{{ client.client_name }}</h3>
-              <p class="phone">{{ client.client_number }}</p>
-              <p v-if="client.client_email" class="email">{{ client.client_email }}</p>
+              <span
+                ><img :src="phoneIcon" />
+                <p class="phone">{{ client.client_number }}</p>
+              </span>
+              <span v-if="client.client_email"
+                ><img :src="emailIcon" />
+                <p class="email">{{ client.client_email }}</p>
+              </span>
             </div>
           </div>
         </div>
@@ -238,6 +400,18 @@ const groupedClients = computed(() => {
 </template>
 
 <style scoped>
+.delete-dial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.delete-dial h3 {
+  color: red;
+}
+
 .initials {
   width: 80px;
   height: 80px;
@@ -272,14 +446,34 @@ const groupedClients = computed(() => {
 .contact-card {
   border-radius: 34px;
   border: 1px solid #e8e8e8;
+  /* cursor: pointer; */
   padding: 40px;
   padding-top: 80px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
 }
 
 .contact-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.contact-action-btns {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  gap: 10px;
+  display: none;
+}
+
+.contact-card:hover .contact-action-btns {
+  display: flex;
+}
+
+.contact-action-btns span {
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
 }
 
 .card-content {
@@ -293,6 +487,12 @@ const groupedClients = computed(() => {
   margin: 0 0 10px 0;
   font-size: 1.5rem;
   font-weight: 600;
+}
+
+.card-content span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .card-content p {

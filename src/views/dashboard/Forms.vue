@@ -4,7 +4,7 @@ import AlertMessage from "@/components/AlertMessage.vue";
 import DashboardSkeleton from "@/components/DashboardSkeleton.vue";
 import BtnDbPry from "@/components/BtnDbPry.vue";
 import LeftDialogue from "@/components/LeftDialogue.vue";
-import serviceNull from "@/assets/images/services-box.png";
+import formNull from "@/assets/images/formNull.png";
 import { customersList } from "../data";
 import NullList from "@/components/NullList.vue";
 import ServiceForm from "@/components/ServiceForm.vue";
@@ -163,7 +163,7 @@ const formatPhoneNumber = (phone) => {
     <!-- no list found -->
     <NullList
       v-show="!list.length"
-      :nullImg="serviceNull"
+      :nullImg="formNull"
       null-text="Create RSVP form for event, create a new intake form, create a feedback form and manage data formation."
       null-btn-text="Create Form"
       :toggleDialogueBtn="toggleDialogue"
