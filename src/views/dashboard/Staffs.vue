@@ -14,7 +14,7 @@ const api = apiMode;
 const list = ref([]);
 let user = ref(null); // Use ref for reactive data
 let isLoading = ref(true); // Add loading state
-let isChatSection = ref(true);
+let isChatSection = ref(false);
 let isMessage = ref(false);
 let isAddForm = ref(false);
 let alertMes = ref("Successfully logged in");
@@ -33,7 +33,6 @@ let staffForm = reactive({
 
 // Functions goes below
 const submitStaffForm = async () => {
-
   console.log(staffForm.name);
 
   const { name, email, role } = staffForm;
@@ -50,27 +49,27 @@ const submitStaffForm = async () => {
 
     // Staff detail storing
     try {
-    const token = localStorage.getItem("token");
-    await api.post("/dashboard/staffs", staffForm, {
-      headers: { token: `${token}` },
-    });
-    toggleDialogue();
-    showAlert("Staff Added Successfully", "success");
-    staffForm.value = {
-      name: "",
-      number: "",
-      email: "",
-      role: "",
-      employed: "",
-      birthday: "",
-      note: "",
-    };
-    getStaffList();
-  } catch (error) {
-    console.log(error);
-    toggleDialogue();
-    showAlert(error.response.data, "error");
-  }
+      const token = localStorage.getItem("token");
+      await api.post("/dashboard/staffs", staffForm, {
+        headers: { token: `${token}` },
+      });
+      toggleDialogue();
+      showAlert("Staff Added Successfully", "success");
+      staffForm.value = {
+        name: "",
+        number: "",
+        email: "",
+        role: "",
+        employed: "",
+        birthday: "",
+        note: "",
+      };
+      getStaffList();
+    } catch (error) {
+      console.log(error);
+      toggleDialogue();
+      showAlert(error.response.data, "error");
+    }
   } catch (error) {
     console.error("failed:", error.response.data);
 
@@ -138,7 +137,7 @@ onMounted(async () => {
       }
 
       user.value = data; // Assign to .value for refs
-      getStaffList()
+      getStaffList();
     } else {
       localStorage.removeItem("duserdata");
       window.location.href = "/login";
@@ -212,22 +211,53 @@ onMounted(async () => {
     <div class="staffs-body" v-if="list.length">
       <div class="staffs-container">
         <div class="staff-card" v-for="staff in list">
-          <div class="staff-initial" :style="{ backgroundColor: staff.staff_color}">
-            <div class="circle"><h3>{{ staff.staff_initial || "M" }}</h3></div>
+          <div
+            class="staff-initial"
+            :style="{ backgroundColor: staff.staff_color }"
+          >
+            <div class="circle">
+              <h3>{{ staff.staff_initial || "M" }}</h3>
+            </div>
           </div>
-          <div class="staff-details" :style="{ color: staff.staff_color}">
+          <div class="staff-details" :style="{ color: staff.staff_color }">
             <h3>{{ staff.staff_name || "Murtadoh" }}</h3>
             <h4>{{ staff.staff_role || "Manager" }}</h4>
           </div>
         </div>
       </div>
       <div class="staffs-chat">
-        <div class="chat-head">
-          <img src="../../assets/icons/arrow.svg" alt="arrow" />
+        <div class="chat-head" v-on:click="isChatSection = !isChatSection">
+          <img :style="`${(isChatSection) ? 'transform: rotate(-90deg);' : 'transform: rotate(0);'}`" src="../../assets/icons/arrow.svg" alt="arrow" />
           <p>Chat</p>
         </div>
         <div class="chat-body" v-show="isChatSection">
-
+          <div class="chat-container"></div>
+          <div class="chat-footer">
+            <div class="message-input">
+              <div class="input">
+                <input
+                  type="text"
+                  :value="chatInputMessage"
+                  placeholder="Type you message"
+                />
+                <input
+                  type="file"
+                  name="upload"
+                  id="upload"
+                  :value="chatAttachMessage"
+                  accept=".jpg, .jpeg, .png, .pdf, .svg, .docx"
+                  style="display: none"
+                />
+                <div class="btn-message">
+                  <img src="../../assets/icons/sendIcon.svg" alt="send" />
+                </div>
+              </div>
+              <label for="upload" class="btn-message">
+                <img src="../../assets/icons/attachIcon.svg" alt="send" />
+              </label>
+            </div>
+            <span class="delivering-status">{{ alert_mess }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -244,7 +274,8 @@ onMounted(async () => {
   gap: 10px;
 }
 
-h3, h4 {
+h3,
+h4 {
   font-size: 20px;
 }
 
@@ -260,7 +291,6 @@ h3, h4 {
 .staff-card:hover {
   transform: translateY(-5px);
 }
-
 
 .staff-initial {
   width: 100%;
@@ -298,19 +328,91 @@ h3, h4 {
   bottom: 0;
   right: 40px;
   z-index: 200;
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.062);
+  overflow: hidden;
 }
 
 .chat-head {
-  background-color: #FDF2F2;
+  background-color: #FFC107;
   display: flex;
   align-items: center;
   gap: 30px;
   justify-content: start;
   padding: 10px 20px;
+  cursor: pointer;
 }
 
 .chat-head p {
   font-weight: 600;
+}
+
+.chat-body {
+  height: 75vh;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: baseline;
+}
+
+.chat-container {
+  flex: 1;
+  background-color: #fff;
+}
+
+.chat-footer {
+  background-color: #d9d9d9;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.message-input {
+  width: 100%;
+  display: flex;
+  gap: 5px;
+}
+
+.input {
+  flex: 1;
+  position: relative;
+}
+
+.input input {
+  background-color: #fff;
+  height: 40px;
+  border-radius: 10px;
+  padding: 10px;
+  width: 100%;
+  border: none;
+}
+
+input:focus, input:focus-visible, input:focus-within {
+  border: none;
+}
+
+.input .btn-message {
+  position: absolute;
+  background-color: #FFC107;
+  top: 0;
+  right: 0;
+}
+
+.btn-message {
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  place-items: center;
+}
+
+.btn-message img {
+  width: 20px;
 }
 
 .initials {
