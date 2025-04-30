@@ -11,7 +11,6 @@ import NullList from "@/components/NullList.vue";
 import ServiceForm from "@/components/ServiceForm.vue";
 import apiMode from "../../../apiMode";
 
-
 const api = apiMode;
 
 // declaration of value below
@@ -36,13 +35,13 @@ let serviceForm = reactive({
 
 // Functions goes below
 const submitServiceForm = () => {
-  alert(serviceForm)
-  toggleDialogue()
-  showAlert("Form Added", "success")
-}
+  alert(serviceForm);
+  toggleDialogue();
+  showAlert("Form Added", "success");
+};
 
 const showAlert = (string1, string2) => {
-  console.log("aleert")
+  console.log("aleert");
   alertMes.value = string1;
   alertType.value = string2;
   isMessage.value = true;
@@ -50,7 +49,7 @@ const showAlert = (string1, string2) => {
   console.log(isMessage.value);
   setTimeout(() => {
     isMessage.value = false;
-    console.log("alerted")
+    console.log("alerted");
   }, 5000);
 };
 
@@ -61,22 +60,32 @@ const toggleDialogue = () => {
 onMounted(async () => {
   try {
     // Verify token and get user data in one request
-  const token = localStorage.getItem("token");
-  let data = JSON.parse(localStorage.getItem("duserdata"))
-  if(token){
-    console.log("Welcome to Dashboard")
-    if(!data){
-      const res = await api.get("/dashboard",{headers: { token: `${token}` }});
-      data = res.data
-      localStorage.setItem("duserdata", JSON.stringify(data))
-    }
+    const token = localStorage.getItem("token");
+    let data = JSON.parse(localStorage.getItem("duserdata"));
+    if (token) {
+      console.log("Welcome to Dashboard");
+      if (!data) {
+        const res = await api.get("/dashboard", {
+          headers: { token: `${token}` },
+        });
+        const dl = res.data;
+        data = {
+          user_initial: dl.user_name[0].toUpperCase(),
+          ...dl,
+        };
+        localStorage.setItem("duserdata", JSON.stringify(data));
+      }
 
-    user.value = data; // Assign to .value for refs
-  } else {
-    localStorage.removeItem("duserdata");
-    window.location.href = "/login";
-  }
-    console.log("Our user", user.value.length)
+      if (data.user_permission !== "admin") {
+        return (window.location.href = "/dashboard/calendar");
+      }
+
+      user.value = data; // Assign to .value for refs
+    } else {
+      localStorage.removeItem("duserdata");
+      window.location.href = "/login";
+    }
+    console.log("Our user", user.value.length);
   } catch (err) {
     // Redirect to login if unauthorized
     console.log(err);
@@ -152,8 +161,8 @@ const formatPhoneNumber = (phone) => {
     :type="alertType"
   />
 
-   <!-- Dashboard View -->
-   <DashboardSkeleton
+  <!-- Dashboard View -->
+  <DashboardSkeleton
     :onClickToShow="toggleDialogue"
     :hBtnShow="list.length"
     hBtnMsg="Add Services"
@@ -166,6 +175,7 @@ const formatPhoneNumber = (phone) => {
     <NullList
       v-show="!list.length"
       :nullImg="serviceNull"
+      :actionPermit="user.user_permission"
       null-text="Add your product, services, cartalogue. seemless management, manage product and pricing."
       null-btn-text="Add Services"
       :null-btn-action="toggleDialogue"

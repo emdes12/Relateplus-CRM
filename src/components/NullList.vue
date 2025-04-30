@@ -18,14 +18,19 @@ defineProps({
     type: Function,
     required: false,
   },
+  actionPermit: {
+    type: String,
+    required: false,
+  }
 });
+// console.log(actionPermit)
 </script>
 
 <template>
   <div class="nulll">
     <img :src="nullImg" alt="no client yet" />
     <span>{{ nullText }}</span>
-    <BtnDbPry :onClickToAct="toggleDialogueBtn" :msg="nullBtnText" />
+    <BtnDbPry :style="(actionPermit === 'admin') ? 'display: flex;' : 'display: none;'" :onClickToAct="toggleDialogueBtn" :msg="nullBtnText" />
   </div>
 </template>
 

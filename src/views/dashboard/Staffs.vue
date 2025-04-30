@@ -12,6 +12,7 @@ const api = apiMode;
 
 // declaration of value below
 const list = ref([]);
+const chats = ref([]);
 let user = ref(null); // Use ref for reactive data
 let isLoading = ref(true); // Add loading state
 let isChatSection = ref(false);
@@ -19,7 +20,13 @@ let isMessage = ref(false);
 let isAddForm = ref(false);
 let alertMes = ref("Successfully logged in");
 let alertType = ref("success");
-
+let chatAttachMessage = ref("");
+let alert_mess = ref("");
+let chatInputMessage = ref("");
+const selectedFile = ref(null); // for selected file to upload
+const progress = ref(0);
+const fileInput = ref(null);
+const uploadStatus = ref("");
 let staffForm = reactive({
   // staff Form values
   name: "",
@@ -78,6 +85,172 @@ const submitStaffForm = async () => {
   }
 };
 
+// send message
+const handleInpuValue = (e) => {
+  chatInputMessage.value = e.target.value;
+  console.log({ ref: chatInputMessage.value, value: e.target.value });
+};
+
+const handleChatAlert = (mess) => {
+  alert_mess.value = mess;
+  setTimeout(() => {
+    alert_mess.value = "";
+  }, 5000);
+};
+
+// handle file upload
+const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Validate file type
+  const validTypes = [
+    "image/jpeg",
+    "image/png",
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ];
+  if (!validTypes.includes(file.type)) {
+    handleChatAlert(
+      "Invalid file type. Only JPG, PNG, PDF, and DOCX are allowed."
+    );
+    fileInput.value = ""; // Reset input
+    return;
+  }
+
+  // Validate file size (5MB max)
+  if (file.size > 5 * 1024 * 1024) {
+    handleChatAlert("File size must be less than 5MB");
+    fileInput.value = ""; // Reset input
+    return;
+  }
+
+  selectedFile.value = file;
+  uploadFile();
+};
+
+// uploading file
+const uploadFile = async () => {
+  if (!selectedFile.value) return;
+
+  const formData = new FormData();
+  formData.append("file", selectedFile.value);
+
+  try {
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("duserdata"));
+
+    formData.append("sender_name", user.user_name);
+    formData.append("sender_permission", user.user_permission);
+    formData.append("sender_id", user.user_id);
+    formData.append("chat_message", chatInputMessage.value);
+    formData.append("sender_color", user.user_color);
+
+    const response = await api.post("/chats/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        token: `${token}`,
+      },
+      onUploadProgress: (progressEvent) => {
+        progress.value = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total
+        );
+      },
+    });
+
+    handleChatAlert("File uploaded successfully!");
+    console.log("File data:", response.data);
+
+    // Reset after successful upload
+    selectedFile.value = null;
+    fileInput.value = "";
+    setTimeout(() => {
+      progress.value = 0;
+    }, 3000);
+  } catch (err) {
+    console.error("Upload error:", err);
+    handleChatAlert(err.response?.data || "Failed to upload file");
+  }
+};
+
+// handle text message sending
+const handleSendMessage = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("duserdata"));
+    const body = reactive({
+      sender_name: user.user_name,
+      sender_permission: user.user_permission,
+      sender_id: user.user_id,
+      chat_message: chatInputMessage.value,
+      sender_color: user.user_color,
+    });
+
+    const result = await api.post("/chats/message", body, {
+      headers: { token: `${token}` },
+    });
+
+    chatInputMessage.value = "";
+    handleChatAlert(result.data);
+    getMessages();
+  } catch (error) {
+    console.log(error);
+    handleChatAlert(error.response.data);
+  }
+};
+
+// get all message
+const getMessages = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const result = await api.get("/chats/message", {
+      headers: { token: `${token}` },
+    });
+    const rowMess = result.data;
+    console.log("Row", rowMess);
+
+    chats.value = rowMess.filter(Boolean).map((lst) => {
+      return {
+        sender_initial: lst.sender_name[0].toUpperCase(),
+        ...lst,
+      };
+    });
+    console.log(chats.value);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// file downloader
+const downloadFile = async (fileId, fileName) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await api.get(`/chats/files/${fileId}`, {
+      responseType: "blob",
+      headers: { token: `${token}` },
+    });
+
+    // Create blob URL
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+
+    // Create temporary link and trigger download
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName || "download");
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Download failed:", error);
+    showAlert("Download failed", "error");
+    // Handle error (show toast/message to user)
+  }
+};
+
 // function to get Staff List
 const getStaffList = async () => {
   const token = localStorage.getItem("token");
@@ -132,12 +305,20 @@ onMounted(async () => {
         const res = await api.get("/dashboard", {
           headers: { token: `${token}` },
         });
-        data = res.data;
+        const dl = res.data;
+        data = {
+          user_initial: dl.user_name[0].toUpperCase(),
+          ...dl,
+        };
         localStorage.setItem("duserdata", JSON.stringify(data));
       }
 
       user.value = data; // Assign to .value for refs
       getStaffList();
+      getMessages();
+      setInterval(() => {
+        getMessages();
+      }, 1000 * 60);
     } else {
       localStorage.removeItem("duserdata");
       window.location.href = "/login";
@@ -201,6 +382,7 @@ onMounted(async () => {
     <NullList
       v-show="!list.length"
       :nullImg="staffNull"
+      :actionPermit="user.user_permission"
       null-text="Create a new Employee, Management Staffs List and Communicate wit your staff effectively"
       null-btn-text="Add Employee"
       :toggleDialogueBtn="toggleDialogue"
@@ -227,17 +409,45 @@ onMounted(async () => {
       </div>
       <div class="staffs-chat">
         <div class="chat-head" v-on:click="isChatSection = !isChatSection">
-          <img :style="`${(isChatSection) ? 'transform: rotate(-90deg);' : 'transform: rotate(0);'}`" src="../../assets/icons/arrow.svg" alt="arrow" />
+          <img
+            :style="`${
+              isChatSection
+                ? 'transform: rotate(-90deg);'
+                : 'transform: rotate(0);'
+            }`"
+            src="../../assets/icons/arrow.svg"
+            alt="arrow"
+          />
           <p>Chat</p>
         </div>
         <div class="chat-body" v-show="isChatSection">
-          <div class="chat-container"></div>
+          <div class="chat-container">
+            <div class="chats" v-for="cht in chats">
+              <div
+                class="initial"
+                :style="`background-color : ${cht.sender_color}`"
+              >
+                {{ cht.sender_initial }}
+              </div>
+              <div class="message">
+                <h6>{{ cht.sender_name }}</h6>
+                <p>{{ cht.chat_message }}</p>
+                <p v-if="cht.chat_type === 'file'">
+                  An attached file found, to click 👉🏼
+                  <button @click="downloadFile(cht.chat_id, cht.storage_name)">
+                    Download File
+                  </button>
+                </p>
+              </div>
+            </div>
+          </div>
           <div class="chat-footer">
             <div class="message-input">
               <div class="input">
                 <input
                   type="text"
                   :value="chatInputMessage"
+                  @change="handleInpuValue"
                   placeholder="Type you message"
                 />
                 <input
@@ -245,10 +455,11 @@ onMounted(async () => {
                   name="upload"
                   id="upload"
                   :value="chatAttachMessage"
+                  @change="handleFileChange"
                   accept=".jpg, .jpeg, .png, .pdf, .svg, .docx"
                   style="display: none"
                 />
-                <div class="btn-message">
+                <div class="btn-message" @click="handleSendMessage">
                   <img src="../../assets/icons/sendIcon.svg" alt="send" />
                 </div>
               </div>
@@ -256,7 +467,12 @@ onMounted(async () => {
                 <img src="../../assets/icons/attachIcon.svg" alt="send" />
               </label>
             </div>
-            <span class="delivering-status">{{ alert_mess }}</span>
+            <span v-show="alert_mess.length > 0" class="delivering-status">{{
+              alert_mess
+            }}</span>
+            <span v-show="progress > 0" class="delivering-status">{{
+              "Uploading: " + progress
+            }}</span>
           </div>
         </div>
       </div>
@@ -267,6 +483,14 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+p button {
+  border: none;
+  background-color: #ffc107;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
 .staff-details {
   padding: 10px;
   display: flex;
@@ -334,7 +558,7 @@ h4 {
 }
 
 .chat-head {
-  background-color: #FFC107;
+  background-color: #ffc107;
   display: flex;
   align-items: center;
   gap: 30px;
@@ -352,12 +576,66 @@ h4 {
   background-color: #fff;
   display: flex;
   flex-direction: column;
-  justify-content: baseline;
+  justify-content: flex-end;
 }
 
 .chat-container {
   flex: 1;
+  background-color: #0000000a;
+  display: flex;
+  overflow-y: auto;
+  gap: 10px;
+  flex-direction: column-reverse;
+  height: 0;
+  max-width: 100%;
+  padding: 20px;
+
+  /* WebKit scrollbar styling */
+  &::-webkit-scrollbar {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb,
+  &::-webkit-scrollbar-button {
+    background-color: rgba(0, 0, 0, 0.39);
+    border-radius: 30px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #ffc1075d;
+  }
+}
+
+.chats {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.message {
+  padding: 10px 20px;
+  border-radius: 0 10px 10px 10px;
   background-color: #fff;
+  position: relative;
+  max-width: 200px;
+}
+
+.message::before {
+  width: 20px;
+  height: 20px;
+  border: 10px solid transparent;
+  border-top: 10px solid #fff;
+  position: absolute;
+  top: 0;
+  right: calc(100% - 10px);
+  content: "";
 }
 
 .chat-footer {
@@ -389,13 +667,15 @@ h4 {
   border: none;
 }
 
-input:focus, input:focus-visible, input:focus-within {
+input:focus,
+input:focus-visible,
+input:focus-within {
   border: none;
 }
 
 .input .btn-message {
   position: absolute;
-  background-color: #FFC107;
+  background-color: #ffc107;
   top: 0;
   right: 0;
 }
@@ -418,6 +698,15 @@ input:focus, input:focus-visible, input:focus-within {
 .initials {
   width: 80px;
   height: 80px;
+  border-radius: 50%;
+  display: grid;
+  color: #ffffff;
+  place-items: center;
+}
+
+.initial {
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: grid;
   color: #ffffff;

@@ -2,13 +2,13 @@
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import { RouterLink, RouterView } from "vue-router";
 import BtnDbPry from "./BtnDbPry.vue";
-import CustomersIcon from "../assets/icons/CustomersIcon.svg"
-import ServicesIcon from "../assets/icons/ServicesIcon.svg"
-import FormsIcon from "../assets/icons/FormsIcon.svg"
-import CalendarIcon from "../assets/icons/CalendarIcon.svg"
-import StaffsIcon from "../assets/icons/StaffsIcon.svg"
-import SearchIcon from "../assets/icons/SearchIcon.svg"
-import NotificationIcon from "../assets/icons/NotificationIcon.svg"
+import CustomersIcon from "../assets/icons/CustomersIcon.svg";
+import ServicesIcon from "../assets/icons/ServicesIcon.svg";
+import FormsIcon from "../assets/icons/FormsIcon.svg";
+import CalendarIcon from "../assets/icons/CalendarIcon.svg";
+import StaffsIcon from "../assets/icons/StaffsIcon.svg";
+import SearchIcon from "../assets/icons/SearchIcon.svg";
+import NotificationIcon from "../assets/icons/NotificationIcon.svg";
 defineProps({
   pageTitle: {
     type: String,
@@ -32,9 +32,11 @@ defineProps({
   },
 });
 
+let isProfileOption = ref(false)
+
 const getGreeting = () => {
   const hour = new Date().getHours();
-  
+
   if (hour >= 5 && hour < 12) {
     return "Good morning! 🌄";
   } else if (hour >= 12 && hour < 17) {
@@ -44,19 +46,49 @@ const getGreeting = () => {
   } else {
     return "Good night! 🛌🏼";
   }
-}
+};
+
+const logOutHandler = () => {
+  localStorage.removeItem("duserdata");
+  localStorage.removeItem("token");
+  window.location.href = "/login";
+};
 
 const isSidebarCollapsed = ref(false);
 const windowWidth = ref(window.innerWidth);
 
 const navItems = [
-  { path: "/dashboard", name: "Customer", icon: CustomersIcon },
-  { path: "/dashboard/services", name: "Services", icon: ServicesIcon },
-  { path: "/dashboard/calendar", name: "Task/Calendar", icon: CalendarIcon },
-  { path: "/dashboard/forms", name: "Forms", icon: FormsIcon },
-  { path: "/dashboard/staffs", name: "Staffs", icon: StaffsIcon },
+  {
+    permission: "admin",
+    path: "/dashboard",
+    name: "Customer",
+    icon: CustomersIcon,
+  },
+  {
+    permission: "admin",
+    path: "/dashboard/services",
+    name: "Services",
+    icon: ServicesIcon,
+  },
+  {
+    permission: "admin staff",
+    path: "/dashboard/calendar",
+    name: "Task/Calendar",
+    icon: CalendarIcon,
+  },
+  {
+    permission: "admin",
+    path: "/dashboard/forms",
+    name: "Forms",
+    icon: FormsIcon,
+  },
+  {
+    permission: "admin staff",
+    path: "/dashboard/staffs",
+    name: "Staffs",
+    icon: StaffsIcon,
+  },
 ];
-
 
 const toggleSidebar = () => {
   isSidebarCollapsed.value = !isSidebarCollapsed.value;
@@ -73,7 +105,7 @@ const checkScreenSize = () => {
 
 const logout = () => {
   // Implement logout logic
-  localStorage.removeItem("token")
+  localStorage.removeItem("token");
   router.push("/login");
 };
 
@@ -88,7 +120,6 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-
   <div>
     <div class="dashboard-container">
       <!-- Header -->
@@ -112,10 +143,15 @@ onBeforeUnmount(() => {
 
         <div class="header-right">
           <!-- add the notification/search icon and btn later -->
-           <span>{{ getGreeting() }}</span>
-          <BtnDbPry :onClickToAct="toggleDialogueBtn" v-show="hBtnShow" :msg="hBtnMsg" wdt="max-content" />
-          <img :src="SearchIcon" alt="search">
-          <img :src="NotificationIcon" alt="notification">
+          <span>{{ getGreeting() }}</span>
+          <BtnDbPry
+            :onClickToAct="toggleDialogueBtn"
+            v-show="hBtnShow && user.user_permission !== 'staff'"
+            :msg="hBtnMsg"
+            wdt="max-content"
+          />
+          <img :src="SearchIcon" alt="search" />
+          <img :src="NotificationIcon" alt="notification" />
         </div>
       </header>
 
@@ -128,21 +164,40 @@ onBeforeUnmount(() => {
             :to="item.path"
             class="nav-item"
             active-class="active"
+            :style="`${
+              item.permission
+                .toLowerCase()
+                .includes(user.user_permission.toLowerCase())
+                ? 'display: flex;'
+                : 'display: none;'
+            }`"
           >
+            <!-- :style="'" -->
             <img :src="item.icon" class="nav-icon" />
             <span class="nav-text">{{ item.name }}</span>
           </router-link>
         </nav>
 
         <div class="sidebar-footer">
-          <div class="user-profile">
+            <ul class="profile-options" v-show="isProfileOption">
+              <router-link to="/">
+                <li>Account</li>
+              </router-link>
+              <router-link to="/">
+                <li>Settings</li>
+              </router-link>
+              <span @click="logOutHandler">
+                <li>Log Out</li>
+              </span>
+            </ul>
+          <div class="user-profile" @click="isProfileOption = !isProfileOption">
             <div
               class="avatar nav-icon"
               :style="`background-color: ${user.user_color};`"
             >
-              M
+              {{ user.user_initial }}
             </div>
-            <div class="user-profile-details nav-text ">
+            <div class="user-profile-details nav-text">
               <b class="username">{{ user.user_name }}</b>
               <span class="email">{{ user.user_email }}</span>
             </div>
@@ -195,14 +250,14 @@ onBeforeUnmount(() => {
 }
 
 .header-right {
-    display: flex;
-    align-items: center;
-    padding-right: 2rem;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  padding-right: 2rem;
+  gap: 1rem;
 }
 .header-right img {
-    width: 1.5rem;
-    cursor: pointer;
+  width: 1.5rem;
+  cursor: pointer;
 }
 
 .menu-toggle {
@@ -222,7 +277,7 @@ onBeforeUnmount(() => {
 .sidebar {
   grid-area: sidebar;
   width: 250px;
-  height: 100vh;
+  height: calc(100vh - 64px);
   background-color: #2c3e50;
   color: white;
   transition: all 0.3s ease;
@@ -263,7 +318,7 @@ onBeforeUnmount(() => {
 }
 
 .nav-item.active {
-  background-color: #FF6600;
+  background-color: #ff6600;
 }
 
 .nav-icon {
@@ -287,8 +342,33 @@ onBeforeUnmount(() => {
 
 .sidebar-footer {
   padding: 1rem;
+  position: relative;
   cursor: pointer;
   border-top: 1px solid #34495e;
+}
+
+.profile-options {
+  position: absolute;
+  bottom: 100%;
+  right: 30px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #fff;
+  list-style-type: none;
+}
+
+li {
+  color: #2c3e50;
+  padding: 6px 12px;
+  width: 100px;
+}
+
+li:not(:nth-last-child()) {
+  margin-bottom: 100px;
+}
+
+router-link, a {
+  text-decoration: none;
 }
 
 .user-profile {
@@ -300,7 +380,7 @@ onBeforeUnmount(() => {
 }
 
 .sidebar.collapsed .sidebar-footer {
-    padding: 1rem 0;
+  padding: 1rem 0;
 }
 
 .avatar {
@@ -317,15 +397,16 @@ onBeforeUnmount(() => {
 }
 
 .user-profile:hover {
-    background-color: #ffffff2a;
+  background-color: #ffffff2a;
 }
 
 .main-content {
   grid-area: main;
   padding: 1rem;
   background-color: #f5f7fa;
-  min-height: calc(100vh - 60px);
+  height: calc(100vh - 64px);
   transition: margin-left 0.3s ease;
+  overflow: hidden;
 }
 
 .content-container {
@@ -334,6 +415,7 @@ onBeforeUnmount(() => {
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   height: 100%;
+  overflow: auto;
 }
 
 /* Responsive styles */
@@ -349,7 +431,7 @@ onBeforeUnmount(() => {
     position: fixed;
     left: 0;
     top: 60px;
-    height: calc(100vh - 60px);
+    height: calc(100vh - 64px);
     z-index: 90;
     transform: translateX(-100%);
   }

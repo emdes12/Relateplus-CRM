@@ -89,13 +89,13 @@ const updateClientDialogue = (id) => {
 
 // client delete handler
 const deleteClientDialogue = async (id) => {
-  localStorage.setItem("client_id", id)
-  toggleDeleteDialogue()
-}
+  localStorage.setItem("client_id", id);
+  toggleDeleteDialogue();
+};
 
-const deleteClient = async () =>{
+const deleteClient = async () => {
   try {
-    const id = localStorage.getItem("client_id")
+    const id = localStorage.getItem("client_id");
     const token = localStorage.getItem("token");
     const data = await api.delete(`/dashboard/customers/${id}`, {
       headers: { token: `${token}` },
@@ -109,13 +109,13 @@ const deleteClient = async () =>{
     });
 
     showAlert("Client deleted successffully");
-    toggleDeleteDialogue()
+    toggleDeleteDialogue();
   } catch (error) {
     console.log(error);
     toggleDeleteDialogue();
     showAlert(error.response.data, "error");
   }
-}
+};
 
 // client update submit handler
 const submitClientUpdate = async () => {
@@ -222,8 +222,16 @@ onMounted(async () => {
         const res = await api.get("/dashboard", {
           headers: { token: `${token}` },
         });
-        data = res.data;
+        const dl = res.data;
+        data = {
+          user_initial: dl.user_name[0].toUpperCase(),
+          ...dl,
+        };
         localStorage.setItem("duserdata", JSON.stringify(data));
+      }
+
+      if(data.user_permission !== "admin"){
+        return window.location.href = "/dashboard/calendar"
       }
 
       getClientList();
@@ -235,8 +243,8 @@ onMounted(async () => {
     showAlert(`${user.value.user_name} Welcome`, "success");
   } catch (err) {
     // Redirect to login if unauthorized
-    showAlert(err.response.data, "error");
     console.log(err);
+    showAlert(err.response.data, "error");
     localStorage.removeItem("token"); // Clear invalid token
     // window.location.href = "/login";
   } finally {
@@ -306,7 +314,7 @@ const groupedClients = computed(() => {
     headerColor="red"
   >
     <div class="delete-dial">
-      <h3 style="font-size: 20px;">Are you sure you want to delete?</h3>
+      <h3 style="font-size: 20px">Are you sure you want to delete?</h3>
       <p>This action is not reverseable</p>
     </div>
   </MidDialogue>
@@ -344,6 +352,7 @@ const groupedClients = computed(() => {
     <NullList
       v-show="!list.length"
       :nullImg="customerNull"
+      :actionPermit="user.user_permission"
       null-text="Add your product, services, cartalogue. seemless management, manage product and pricing."
       null-btn-text="Add Customer"
       :toggleDialogueBtn="toggleDialogue"
