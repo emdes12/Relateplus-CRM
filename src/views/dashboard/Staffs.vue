@@ -61,7 +61,10 @@ const submitStaffForm = async () => {
         headers: { token: `${token}` },
       });
       toggleDialogue();
-      showAlert("Staff Added Successfully", "success");
+      showAlert("Team Member Added Successfully", "success");
+      alert(
+        "an account as been create for this member with password: Staff123"
+      );
       staffForm.value = {
         name: "",
         number: "",
@@ -251,7 +254,7 @@ const downloadFile = async (fileId, fileName) => {
   }
 };
 
-// function to get Staff List
+// function to get Team List
 const getStaffList = async () => {
   const token = localStorage.getItem("token");
   try {
@@ -346,7 +349,7 @@ onMounted(async () => {
     :toggleDialogueBtn="toggleDialogue"
     :actionClickSubmit="submitStaffForm"
     v-show="isAddForm"
-    dialog-header="Add Staff"
+    dialog-header="Add Team member"
     headerColor="palegreen"
   >
     <StaffForm
@@ -363,7 +366,7 @@ onMounted(async () => {
   <!-- Alert message for notifications -->
   <AlertMessage
     v-show="isMessage"
-    pageTitle="Staffs"
+    pageTitle="Teams"
     :msg="alertMes"
     :type="alertType"
   />
@@ -383,7 +386,7 @@ onMounted(async () => {
       v-show="!list.length"
       :nullImg="staffNull"
       :actionPermit="user.user_permission"
-      null-text="Create a new Employee, Management Staffs List and Communicate wit your staff effectively"
+      null-text="Create a new Employee, Management Team members and Communicate with your team effectively"
       null-btn-text="Add Employee"
       :toggleDialogueBtn="toggleDialogue"
     />

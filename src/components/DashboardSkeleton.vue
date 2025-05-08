@@ -84,8 +84,8 @@ const navItems = [
   },
   {
     permission: "admin staff",
-    path: "/dashboard/staffs",
-    name: "Staffs",
+    path: "/dashboard/teams",
+    name: "Team members",
     icon: StaffsIcon,
   },
 ];

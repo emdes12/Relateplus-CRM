@@ -29,7 +29,7 @@ const emit = defineEmits([
   <div>
     <input
       type="text"
-      placeholder="Staff Name:"
+      placeholder="Member Name:"
       :value="staffNameValue"
       @input="emit('update:staffNameValue', $event.target.value)"
     />
@@ -42,27 +42,27 @@ const emit = defineEmits([
     />
     <input
       type="email"
-      placeholder="Staff Email:"
+      placeholder="Member Email:"
       :value="staffEmailValue"
       @input="emit('update:staffEmailValue', $event.target.value)"
     />
     <input
       type="text"
-      placeholder="Staff Role"
+      placeholder="Member Role"
       :value="staffRoleValue"
       @input="emit('update:staffRoleValue', $event.target.value)"
     />
     <p style="width: 100%; padding-left: 10px; line-height: 0; padding-top: 10px;">Employement Date</p>
     <input
     type="date"
-    placeholder="Date Employed:"
+    placeholder="Date Joined:"
     :value="staffEmpDateValue"
     @input="emit('update:staffEmpDateValue', $event.target.value)"
     />
     <p style="width: 100%; padding-left: 10px; line-height: 0; padding-top: 10px;">Birthday Date</p>
     <input
       type="date"
-      placeholder="Staff Name:"
+      placeholder="Member Name:"
       :value="staffBdayValue"
       @input="emit('update:staffBdayValue', $event.target.value)"
     />
@@ -70,7 +70,7 @@ const emit = defineEmits([
       name="staffNote"
       :value="staffNoteValue"
       @input="emit('update:staffNoteValue', $event.target.value)"
-      placeholder="Staff Note:"
+      placeholder="Member Note:"
     ></textarea>
   </div>
 </template>
