@@ -375,9 +375,9 @@ onMounted(async () => {
   <DashboardSkeleton
     :toggleDialogueBtn="toggleDialogue"
     :hBtnShow="list.length"
-    hBtnMsg="Add Employee"
+    hBtnMsg="Add Team Member"
     :user="user"
-    pageTitle="Employee List"
+    pageTitle="Team Members"
     v-if="!isLoading"
   >
     <!-- enter your content below (slots) -->
@@ -386,8 +386,8 @@ onMounted(async () => {
       v-show="!list.length"
       :nullImg="staffNull"
       :actionPermit="user.user_permission"
-      null-text="Create a new Employee, Management Team members and Communicate with your team effectively"
-      null-btn-text="Add Employee"
+      null-text="Create a add a new team member, Management Team members and Communicate with your team effectively"
+      null-btn-text="Add Team Member"
       :toggleDialogueBtn="toggleDialogue"
     />
 
