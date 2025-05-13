@@ -9,6 +9,7 @@ import { customersList } from "../data";
 import NullList from "@/components/NullList.vue";
 import ServiceForm from "@/components/ServiceForm.vue";
 import apiMode from "../../../apiMode";
+import FormBuilder from "@/components/Forms/FormBuilder.vue";
 
 const api = apiMode;
 
@@ -135,7 +136,7 @@ const formatPhoneNumber = (phone) => {
   <div v-show="isLoading">Loading dashboard...</div>
 
   <!-- Add form Dialogue -->
-  <LeftDialogue
+  <!-- <LeftDialogue
     :toggleDialogueBtn="toggleDialogue"
     :actionClickSubmit="submitServiceForm"
     v-show="isAddForm"
@@ -149,7 +150,7 @@ const formatPhoneNumber = (phone) => {
       v-model:clientBdayValue="serviceForm.birthday"
       v-model:clientNoteValue="serviceForm.note"
     />
-  </LeftDialogue>
+  </LeftDialogue> -->
 
   <!-- Alert message for notifications -->
   <AlertMessage
@@ -171,7 +172,7 @@ const formatPhoneNumber = (phone) => {
     <!-- enter your content below (slots) -->
     <!-- no list found -->
     <NullList
-      v-show="!list.length"
+      v-show="!list.length && !isAddForm"
       :nullImg="formNull"
       :actionPermit="user.user_permission"
       null-text="Create RSVP form for event, create a new intake form, create a feedback form and manage data formation."
@@ -180,7 +181,7 @@ const formatPhoneNumber = (phone) => {
     />
 
     <!-- list available -->
-
+     <FormBuilder v-show="isAddForm" />
     <!-- enter of content (slot) -->
   </DashboardSkeleton>
 </template>
