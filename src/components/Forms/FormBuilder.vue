@@ -9,16 +9,32 @@ const api = apiMode;
 
 // leftbar field template
 const fieldTemplates = ref([
-  { type: "text", label: "Text Input", title: "Single Line text input" },
-  { type: "email", label: "Email", title: "Email input" },
-  { type: "number", label: "Number Input", title: "Numerical Inputs" },
-  { type: "date", label: "Date", title: "Date/Calendar Inputs" },
-  { type: "textarea", label: "Textarea", title: "Wide text input field" },
-  { type: "checkbox", label: "Multi-choice Selection", title: "Multiselect option" },
-  { type: "radio", label: "Single-choice Selection", title: "Multiselect option" },
-  { type: "select", label: "Dropdown Selection", title: "Option input" },
-  { type: "button", label: "Button", title: "Action button" },
-  { type: "p-tag", label: "Text", title: "Add a plain text, use for explanation" },
+  { type: "text", identifier: "Text Input", title: "Single Line text input" },
+  { type: "email", identifier: "Email", title: "Email input" },
+  { type: "number", identifier: "Number Input", title: "Numerical Inputs" },
+  { type: "date", identifier: "Date", title: "Date/Calendar Inputs" },
+  { type: "textarea", identifier: "Textarea", title: "Wide text input field" },
+  {
+    type: "checkbox",
+    identifier: "Multi-choice Selection",
+    title: "Multiselect option",
+  },
+  {
+    type: "radio",
+    identifier: "Single-choice Selection",
+    title: "Multiselect option",
+  },
+  { type: "select", identifier: "Dropdown Selection", title: "Option input" },
+  {
+    type: "password",
+    identifier: "Security Input",
+    title: "Used for inputing security key",
+  },
+  {
+    type: "p-tag",
+    identifier: "Text",
+    title: "Add a plain text, use for explanation",
+  },
 ]);
 
 // Reactive form structure
@@ -43,9 +59,9 @@ const clone = (original) => {
 };
 
 // //  Remove a field
-// const removeField = (index) => {
-//   form.value.fields.splice(index, 1);
-// };
+const removeField = (index) => {
+  form.value.fields.splice(index, 1);
+};
 
 // Submit form to backend
 const submitForm = async () => {
@@ -61,8 +77,9 @@ const submitForm = async () => {
   const payload = {
     title: form.value.title,
     description: form.value.description,
+    color: form.value.color,
     fields: form.value.fields.map((f) => ({
-      label: f.label,
+      label: f.identifier,
       field_type: f.type,
       is_required: f.required,
       options: f.options,
@@ -79,6 +96,14 @@ const submitForm = async () => {
   });
 };
 
+const switchOptions = (id) => {
+  form.value.fields.forEach((f) => {
+    if (f.id === id) {
+      f.options = f.optionsText.split(",").map((opt) => opt.trim());
+    }
+  });
+};
+
 const fields = ref([]);
 
 const addField = (obj) => {
@@ -86,7 +111,8 @@ const addField = (obj) => {
   const defaultOptions = ["Option 1", "Option 2"];
   form.value.fields.push({
     id,
-    label: obj.label,
+    identifier: obj.identifier,
+    label: "",
     field_type: obj.type,
     optionsText: "", // temp for UI
     options: [],
@@ -94,15 +120,11 @@ const addField = (obj) => {
     is_required: false,
   });
 
-  console.log(form.value)
-};
-
-const removeField = (index) => {
-  fields.value.splice(index, 1);
+  console.log(form.value);
 };
 
 const saveForm = () => {
-  console.log("Form fields:", fields.value);
+  console.log("Form fields:", form.value);
   alert("Form saved (check console)");
 };
 </script>
@@ -120,67 +142,232 @@ const saveForm = () => {
         :title="field.title"
         @click="addField(field)"
       >
-        {{ field.label }}
+        {{ field.identifier }}
       </div>
     </div>
 
     <!-- Form canvas -->
     <div class="form-canvas">
-      <div class="form-meta">
-        <h3>Form: {{ form.title || 'Untitled Form' }}</h3>
-        <input v-model="form.title" placeholder="Form Title" class="form-title-input" />
-        <textarea v-model="form.description" placeholder="Form Description" class="form-description-input"></textarea>
+      <div class="form-canva">
+        <div class="form-meta">
+          <h3>Form: {{ form.title || "Untitled Form" }}</h3>
+          <input
+            v-model="form.title"
+            placeholder="Form Title"
+            class="form-title-input"
+          />
+          <textarea
+            v-model="form.description"
+            placeholder="Form Description"
+            class="form-description-input"
+          ></textarea>
+          <label>Color Preference: </label
+          ><input
+            style="width: 80px; height: 40px"
+            type="color"
+            v-model="form.color"
+          />
+        </div>
+
+        <hr />
+        <h3>Form Fields</h3>
+
+        <!-- Field Setting rendering -->
+        <draggable :list="form.fields" group="fields" item-key="id">
+          <template #item="{ element, index }">
+            <div class="form-field" title="click and drag to sort">
+              <div class="field-header">
+                <strong
+                  >{{ element.identifier || "Untitled Field" }} ({{
+                    element.field_type
+                  }})</strong
+                >
+                <label class="required-toggle">
+                  <input type="checkbox" v-model="element.is_required" />
+                  Required
+                </label>
+              </div>
+
+              <!-- Render input fields params -->
+              <div>
+                <input v-model="element.label" placeholder="Label" />
+
+                <div
+                  v-if="
+                    element.field_type === 'select' ||
+                    element.field_type === 'checkbox' ||
+                    element.field_type === 'radio'
+                  "
+                >
+                  <input
+                    v-model="element.optionsText"
+                    v-on:change="switchOptions(element.id)"
+                    placeholder="Comma-seperated options (e.g 'Male, Female, Transgender')"
+                  />
+                </div>
+              </div>
+
+              <!-- Remove button -->
+              <button @click="removeField(index)">Remove</button>
+            </div>
+          </template>
+        </draggable>
+
+
+        <label for="submit-btn">
+          <strong>Submit Button Name</strong>
+          <input
+            style="width: 200px; margin: 0 20px"
+            v-model="form.submitText"
+            :placeholder="form.submitText"
+            class="form-title-input"
+          />
+        </label>
+        <button class="btn-form" @click="saveForm">Save Form</button>
       </div>
 
-      <hr>
-      <h3>Form Fields</h3>
+      <div class="form-preview">
+        <div class="preview-header" :style="`background-color: ${form.color}`">
+          <h2>
+            {{ form.title || "Form Title Here" }}
+          </h2>
+          <span>{{
+            form.description || "Your form description goes here"
+          }}</span>
+        </div>
 
-      <div v-for="(field, index) in form.fields" :key="field.id" class="form-field">
-        <div class="field-header">
-          <strong
-            >{{ field.label || "Untitled Field" }} ({{
-              field.field_type
-            }})</strong
+        <!-- form preview start -->
+        <div class="form-preview-container" v-for="field in form.fields">
+          <!-- Render fields dynamically -->
+          <div v-if="field.field_type === 'text'">
+            <label
+              >{{ field.label }}
+              <sup style="color: red">{{
+                (field.is_required && "*") || ""
+              }}</sup></label
+            >
+            <input
+              type="text"
+              :required="`${field.is_required ? 'required' : 'no'}`"
+              :placeholder="field.label"
+            />
+          </div>
+
+          <div v-else-if="field.field_type === 'email'">
+            <label
+              >{{ field.label }}
+              <sup style="color: red">{{
+                (field.is_required && "*") || ""
+              }}</sup></label
+            >
+            <input
+              type="email"
+              :required="`${field.is_required ? 'required' : 'no'}`"
+              :placeholder="field.label"
+            />
+          </div>
+
+          <div v-if="field.field_type === 'p-tag'">
+            <p>{{ field.label }}</p>
+          </div>
+
+          <!-- If number -->
+          <div v-else-if="field.field_type === 'number'">
+            <label
+              >{{ field.label }}
+              <sup style="color: red">{{
+                (field.is_required && "*") || ""
+              }}</sup></label
+            >
+            <input
+              type="number"
+              :required="`${field.is_required ? 'required' : 'no'}`"
+              :placeholder="field.label"
+            />
+          </div>
+          
+          <!-- If number -->
+          <div v-else-if="field.field_type === 'date'">
+            <label
+              >{{ field.label }}
+              <sup style="color: red">{{
+                (field.is_required && "*") || ""
+              }}</sup></label
+            >
+            <input
+              type="date"
+              :required="`${field.is_required ? 'required' : 'no'}`"
+              :placeholder="field.label"
+            />
+          </div>
+
+          <!-- If text Area -->
+          <div v-else-if="field.field_type === 'textarea'">
+            <label
+              >{{ field.label }}
+              <sup style="color: red" required="">{{
+                (field.is_required && "*") || ""
+              }}</sup></label
+            >
+            <textarea
+              :placeholder="field.label"
+              :required="`${field.is_required ? 'required' : 'no'}`"
+            ></textarea>
+          </div>
+
+          <!-- for select/dropdown -->
+          <div v-else-if="field.field_type === 'select'">
+            <label
+              >{{ field.label }}
+              <sup style="color: red">{{
+                (field.is_required && "*") || ""
+              }}</sup></label
+            >
+            <select :required="`${field.is_required ? 'required' : 'no'}`">
+              <option disabled selected>Select an option</option>
+              <option v-for="(opt, i) in field.options" :key="i">
+                {{ opt }}
+              </option>
+            </select>
+          </div>
+
+          <!-- for Radio and Checkbox -->
+          <div
+            v-else-if="
+              field.field_type === 'checkbox' || field.field_type === 'radio'
+            "
           >
-          <label class="required-toggle">
-            <input type="checkbox" v-model="field.is_required" />
-            Required
-          </label>
-        </div>
-
-        <!-- Render fields dynamically -->
-        <div v-if="field.field_type === 'text'">
-          <input type="text" placeholder="Text input" />
-        </div>
-        <div v-else-if="field.field_type === 'email'">
-          <input type="email" placeholder="Email input" />
-        </div>
-        <div v-else-if="field.field_type === 'textarea'">
-          <textarea placeholder="Textarea field"></textarea>
-        </div>
-        <div v-else-if="field.field_type === 'select'">
-          <select>
-            <option disabled selected>Select an option</option>
-            <option v-for="(opt, i) in field.options" :key="i">
+            <label
+              >{{ field.label }}
+              <sup style="color: red">{{
+                (field.is_required && "*") || ""
+              }}</sup></label
+            >
+            <label
+              style="
+                display: flex;
+                gap: 10px;
+                width: 100%;
+                align-items: start;
+                justify-content: start;
+              "
+              v-for="(opt, i) in field.options"
+              :for="field.label"
+              :key="i"
+            >
+              <input
+                :style="`width: 15px; height: 15px; accent-color: ${form.color}`"
+                :type="field.field_type"
+                :name="field.label"
+              />
               {{ opt }}
-            </option>
-          </select>
+            </label>
+          </div>
         </div>
-        <div v-else-if="field.field_type === 'checkbox'">
-          <label v-for="(opt, i) in field.options" :key="i">
-            <input type="checkbox" /> {{ opt }}
-          </label>
-        </div>
-
-        <!-- Remove button -->
-        <button @click="removeField(index)">Remove</button>
+        <button class="btn-form" :style="`background-color: ${form.color}`">
+          {{ form.submitText }}
+        </button>
       </div>
-
-      <label for="submit-btn">
-        <strong>Submit Button Name</strong
-        <input v-model="form.submitText" :placeholder="form.submitText" class="form-title-input" />
-      </label>
-      <button @click="saveForm">Save Form</button>
     </div>
   </div>
 </template>
@@ -192,7 +379,7 @@ const saveForm = () => {
   gap: 2rem;
   padding: 2rem;
   background-color: #f9fafb;
-  min-height: 100vh;
+  height: 85vh;
   box-sizing: border-box;
 }
 
@@ -203,6 +390,7 @@ const saveForm = () => {
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   display: flex;
+  overflow: scroll;
   flex-direction: column;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
@@ -216,12 +404,12 @@ const saveForm = () => {
 }
 
 .element-head {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: #11182788;
-    color: #cbd5e1;
-    text-align: center;
-    text-transform: uppercase;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #11182788;
+  color: #cbd5e1;
+  text-align: center;
+  text-transform: uppercase;
   margin-bottom: 1rem;
 }
 
@@ -251,6 +439,18 @@ const saveForm = () => {
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+  align-items: start;
+  gap: 2rem;
+  overflow: hidden;
+}
+
+.form-canva {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
 }
 
 .form-canvas h3 {
@@ -261,6 +461,7 @@ const saveForm = () => {
 
 .form-canvas input[type="text"],
 .form-canvas input[type="email"],
+.form-canvas select,
 .form-canvas input,
 .form-canvas textarea {
   width: 100%;
@@ -292,6 +493,7 @@ h3 {
   margin-bottom: 1.5rem;
   border-radius: 10px;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
+  cursor: grabbing;
 }
 
 .form-field strong {
@@ -311,8 +513,6 @@ h3 {
   margin-top: 0.5rem;
 }
 
-
-
 /* Remove Button */
 .form-field button {
   margin-top: 0.5rem;
@@ -331,7 +531,7 @@ h3 {
 }
 
 /* Save Button */
-.form-canvas > button {
+.btn-form {
   margin-top: 1rem;
   padding: 0.8rem 1.5rem;
   font-size: 1rem;
@@ -343,7 +543,38 @@ h3 {
   transition: background 0.3s ease;
 }
 
-.form-canvas > button:hover {
+.btn-form:hover {
   background-color: #059669;
+}
+
+label[for="submit-btn"] {
+  font-size: large;
+  display: block;
+}
+.form-preview {
+  height: 100%;
+  overflow: auto;
+}
+
+input[type="checkbox"] {
+  width: 100%;
+}
+
+.preview-header {
+  width: 100%;
+  padding: 90px 30px 30px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 30px;
+  background: #000;
+  color: #ffffffea;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.form-preview-container label {
+    font-size: 18px;
+    width: 100% 
 }
 </style>

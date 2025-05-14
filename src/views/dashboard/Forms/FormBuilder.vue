@@ -83,7 +83,7 @@ const submitForm = async () => {
     <div class="leftbar">
       <h3>Field Types</h3>
       <draggable
-        :list="fieldTemplates"
+        v-model="fieldTemplates"
         group="fields"
         :clone="clone"
         item-key="type"
