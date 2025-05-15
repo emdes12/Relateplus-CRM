@@ -25,6 +25,7 @@ defineProps({
   position: fixed;
   top: 80px;
   right: 50px;
+  z-index: 10000000000000;
 }
 
 .error {

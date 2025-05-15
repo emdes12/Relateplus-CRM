@@ -198,7 +198,7 @@ onBeforeUnmount(() => {
               {{ user.user_initial }}
             </div>
             <div class="user-profile-details nav-text">
-              <b class="username">{{ user.user_name }}</b>
+              <b class="username">{{user.user_name }}</b>
               <span class="email">{{ user.user_email }}</span>
             </div>
           </div>
@@ -392,6 +392,7 @@ router-link, a {
 }
 
 .user-profile-details {
+  width: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -444,5 +445,12 @@ router-link, a {
   .main-content {
     margin-left: 0 !important;
   }
+}
+
+.email {
+  width: 130px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 </style>

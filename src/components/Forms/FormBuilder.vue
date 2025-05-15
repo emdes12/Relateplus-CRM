@@ -4,8 +4,22 @@ import { v4 as uuidv4 } from "uuid";
 import BtnDbPry from "@/components/BtnDbPry.vue";
 import draggable from "vuedraggable";
 import apiMode from "../../../apiMode";
+import AlertMessage from "../AlertMessage.vue";
+
+defineProps({
+  toggleDialogue: Function,
+  getAllForms: {
+    type: Function,
+    required: true,
+    validator: value => typeof value === 'function'
+  },
+})
 
 const api = apiMode;
+
+let isMessage = ref(false);
+let alertMes = ref("Successfully logged in");
+let alertType = ref("success");
 
 // leftbar field template
 const fieldTemplates = ref([
@@ -42,21 +56,25 @@ const form = ref({
   title: "",
   description: "",
   color: "",
+  completionMessage: "",
   submitText: "Submit",
+  closingDate: "",
   fields: [],
 });
 
-// When a field is dragged in, clone it and add cstome properties
-const clone = (original) => {
-  return {
-    id: uuidv4(),
-    type: original.type,
-    label: "",
-    required: false,
-    optionsText: "", // temp for UI
-    options: [],
-  };
-};
+
+// reset form
+const resetForm = () => {
+  form.value  = {
+  title: "",
+  description: "",
+  color: "",
+  completionMessage: "",
+  submitText: "Submit",
+  closingDate: "",
+  fields: [],
+}
+}
 
 // //  Remove a field
 const removeField = (index) => {
@@ -66,36 +84,46 @@ const removeField = (index) => {
 // Submit form to backend
 const submitForm = async () => {
   const token = localStorage.getItem("token");
-  // Parse options from string (for select/checkbox types)
-  form.value.fields.forEach((f) => {
-    if (f.type === "select" || f.type === "checkbox") {
-      f.options = f.optionsText.split(",").map((opt) => opt.trim());
-    }
-  });
-
-  // send to backend
+  
+  try {
+    // send to backend
   const payload = {
     title: form.value.title,
     description: form.value.description,
     color: form.value.color,
+    closingDate: form.value.closingDate,
+    submitText: form.value.submitText,
     fields: form.value.fields.map((f) => ({
-      label: f.identifier,
+      label: f.label,
       field_type: f.type,
       is_required: f.required,
       options: f.options,
     })),
   };
 
-  const res = await api("/api/forms", {
-    method: "POST",
+  const body = JSON.stringify(payload)
+
+  const res = await api.post("/forms", body, {
     headers: {
       "Content-Type": "application/json",
-      token: `${token}`,
+      token: `${token}`
     },
-    body: JSON.stringify(payload),
   });
+  showAlert('Your form as been created', 'success')
+  
+
+  localStorage.setItem("newFormId", res.data.formId)
+
+  console.log(res.data)
+  } catch (error) {
+    console.log(error)
+    showAlert(error.response?.data, 'error')
+  }
+
+  
 };
 
+// Parse options from string (for select/checkbox types)
 const switchOptions = (id) => {
   form.value.fields.forEach((f) => {
     if (f.id === id) {
@@ -104,7 +132,6 @@ const switchOptions = (id) => {
   });
 };
 
-const fields = ref([]);
 
 const addField = (obj) => {
   const id = uuidv4();
@@ -116,21 +143,42 @@ const addField = (obj) => {
     field_type: obj.type,
     optionsText: "", // temp for UI
     options: [],
-    // options1: ["select", "checkbox"].includes(type) ? [...defaultOptions] : [],
     is_required: false,
   });
 
   console.log(form.value);
 };
 
-const saveForm = () => {
+const saveForm = (arr) => {
   console.log("Form fields:", form.value);
-  alert("Form saved (check console)");
+
+  console.log('arr', arr)
+  console.log('arr0', arr[0])
+  console.log('arr1', arr[1])
+
+  submitForm()
+  resetForm()
+  arr[0]()
+  const link = document.createElement("a");
+  link.href = '/dashboard/forms';
+  link.click();
+  arr[1]()
+};
+
+const showAlert = (string1, string2) => {
+  alertMes.value = string1;
+  alertType.value = string2;
+  isMessage.value = true;
+  setInterval(() => {
+    isMessage.value = false;
+  }, 2500);
 };
 </script>
 
 <template>
+  <AlertMessage v-show="isMessage" :msg="alertMes" :type="alertType" />
   <div class="builder-container">
+    <div class="hide-form-builder" @click="toggleDialogue">x</div>
     <!-- Sidebar with clickable field types -->
     <div class="sidebar">
       <h3>Add Field</h3>
@@ -150,7 +198,7 @@ const saveForm = () => {
     <div class="form-canvas">
       <div class="form-canva">
         <div class="form-meta">
-          <h3>Form: {{ form.title || "Untitled Form" }}</h3>
+          <h3>Form Settings: </h3>
           <input
             v-model="form.title"
             placeholder="Form Title"
@@ -167,6 +215,15 @@ const saveForm = () => {
             type="color"
             v-model="form.color"
           />
+          <label for="closing-date">
+            Closing Date:
+            <input type="date" name="closing-date" v-model="form.closingDate">
+          </label>
+          <textarea
+            v-model="form.completionMessage"
+            placeholder="Form Completion Message"
+            class="form-description-input"
+          ></textarea>
         </div>
 
         <hr />
@@ -223,7 +280,7 @@ const saveForm = () => {
             class="form-title-input"
           />
         </label>
-        <button class="btn-form" @click="saveForm">Save Form</button>
+        <button class="btn-form" @click="saveForm([toggleDialogue, getAllForms])">Save Form</button>
       </div>
 
       <div class="form-preview">
@@ -364,7 +421,7 @@ const saveForm = () => {
             </label>
           </div>
         </div>
-        <button class="btn-form" :style="`background-color: ${form.color}`">
+        <button @click="showAlert('Submit button clicked', 'success')" class="btn-form" :style="`background-color: ${form.color}`">
           {{ form.submitText }}
         </button>
       </div>
@@ -375,6 +432,7 @@ const saveForm = () => {
 <style scoped>
 /* Container Layout */
 .builder-container {
+  position: relative;
   display: flex;
   gap: 2rem;
   padding: 2rem;
@@ -576,5 +634,19 @@ input[type="checkbox"] {
 .form-preview-container label {
     font-size: 18px;
     width: 100% 
+}
+
+.hide-form-builder {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background-color: #f00;
+  color: #fff;
+  font-size: large;
+  position: absolute;
+  top: 3px;
+  right: 3px;
 }
 </style>
