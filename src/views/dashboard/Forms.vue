@@ -43,12 +43,21 @@ const getAllForms = async () => {
     });
     console.log("data", data.data);
     list.value = data.data
+
+    list.value.forEach(async one => {
+      const ids = one.form_id
+      const data = await api.get("/forms/" + ids + "/responses", { headers: { token: `${token}` },});
+      const data_resp = data.data;
+
+      const numResp = data_resp.map((resp) => resp.response.length);
+      console.log('num', numResp.length)
+      one.numResp = numResp.length
+    })
     console.log("Form list", list.value);
   } catch (error) {
     console.error(error.response);
   }
 };
-
 
 
 const showAlert = (string1, string2) => {

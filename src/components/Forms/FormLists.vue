@@ -1,21 +1,22 @@
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import formTemp from "@/assets/icons/Frame 83.svg";
+import apiMode from "../../../apiMode";
 
 defineProps({
   list: Array,
 });
 
-const totalResp = (id) => {
-  if (id) {
-    return 13;
-  }
-};
+const api = apiMode;
+const responseCounts = ref({});
+
+
+
 </script>
 <template>
   <div class="form-container">
     <div class="form-wrapper" v-for="form in list">
-      <router-link :to="`/forms/${form.form_id}`">
+      <router-link :to="`/forms/${form.form_id}/settings`">
         <div :style="`background-color: ${form.color}`">
           <img :src="formTemp" alt="" />
         </div>
@@ -24,7 +25,7 @@ const totalResp = (id) => {
             {{ form.title }}
           </h5>
           <p>
-            Response: <strong>{{ totalResp(form.form_id) }}</strong>
+            Response: <strong>{{ form.numResp || 0 }}</strong>
           </p>
         </div>
       </router-link>
@@ -32,7 +33,6 @@ const totalResp = (id) => {
   </div>
 </template>
 <style scoped>
-
 .form-container {
   display: flex;
   align-items: center;

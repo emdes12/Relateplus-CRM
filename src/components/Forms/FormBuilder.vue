@@ -5,6 +5,7 @@ import BtnDbPry from "@/components/BtnDbPry.vue";
 import draggable from "vuedraggable";
 import apiMode from "../../../apiMode";
 import AlertMessage from "../AlertMessage.vue";
+import FormPreview from "./FormPreview.vue";
 
 defineProps({
   toggleDialogue: Function,
@@ -95,7 +96,7 @@ const submitForm = async () => {
     submitText: form.value.submitText,
     fields: form.value.fields.map((f) => ({
       label: f.label,
-      field_type: f.type,
+      field_type: f.field_type,
       is_required: f.required,
       options: f.options,
     })),
@@ -221,7 +222,7 @@ const showAlert = (string1, string2) => {
           </label>
           <textarea
             v-model="form.completionMessage"
-            placeholder="Form Completion Message"
+            placeholder="Form Confirmation Message"
             class="form-description-input"
           ></textarea>
         </div>
@@ -283,148 +284,7 @@ const showAlert = (string1, string2) => {
         <button class="btn-form" @click="saveForm([toggleDialogue, getAllForms])">Save Form</button>
       </div>
 
-      <div class="form-preview">
-        <div class="preview-header" :style="`background-color: ${form.color}`">
-          <h2>
-            {{ form.title || "Form Title Here" }}
-          </h2>
-          <span>{{
-            form.description || "Your form description goes here"
-          }}</span>
-        </div>
-
-        <!-- form preview start -->
-        <div class="form-preview-container" v-for="field in form.fields">
-          <!-- Render fields dynamically -->
-          <div v-if="field.field_type === 'text'">
-            <label
-              >{{ field.label }}
-              <sup style="color: red">{{
-                (field.is_required && "*") || ""
-              }}</sup></label
-            >
-            <input
-              type="text"
-              :required="`${field.is_required ? 'required' : 'no'}`"
-              :placeholder="field.label"
-            />
-          </div>
-
-          <div v-else-if="field.field_type === 'email'">
-            <label
-              >{{ field.label }}
-              <sup style="color: red">{{
-                (field.is_required && "*") || ""
-              }}</sup></label
-            >
-            <input
-              type="email"
-              :required="`${field.is_required ? 'required' : 'no'}`"
-              :placeholder="field.label"
-            />
-          </div>
-
-          <div v-if="field.field_type === 'p-tag'">
-            <p>{{ field.label }}</p>
-          </div>
-
-          <!-- If number -->
-          <div v-else-if="field.field_type === 'number'">
-            <label
-              >{{ field.label }}
-              <sup style="color: red">{{
-                (field.is_required && "*") || ""
-              }}</sup></label
-            >
-            <input
-              type="number"
-              :required="`${field.is_required ? 'required' : 'no'}`"
-              :placeholder="field.label"
-            />
-          </div>
-          
-          <!-- If number -->
-          <div v-else-if="field.field_type === 'date'">
-            <label
-              >{{ field.label }}
-              <sup style="color: red">{{
-                (field.is_required && "*") || ""
-              }}</sup></label
-            >
-            <input
-              type="date"
-              :required="`${field.is_required ? 'required' : 'no'}`"
-              :placeholder="field.label"
-            />
-          </div>
-
-          <!-- If text Area -->
-          <div v-else-if="field.field_type === 'textarea'">
-            <label
-              >{{ field.label }}
-              <sup style="color: red" required="">{{
-                (field.is_required && "*") || ""
-              }}</sup></label
-            >
-            <textarea
-              :placeholder="field.label"
-              :required="`${field.is_required ? 'required' : 'no'}`"
-            ></textarea>
-          </div>
-
-          <!-- for select/dropdown -->
-          <div v-else-if="field.field_type === 'select'">
-            <label
-              >{{ field.label }}
-              <sup style="color: red">{{
-                (field.is_required && "*") || ""
-              }}</sup></label
-            >
-            <select :required="`${field.is_required ? 'required' : 'no'}`">
-              <option disabled selected>Select an option</option>
-              <option v-for="(opt, i) in field.options" :key="i">
-                {{ opt }}
-              </option>
-            </select>
-          </div>
-
-          <!-- for Radio and Checkbox -->
-          <div
-            v-else-if="
-              field.field_type === 'checkbox' || field.field_type === 'radio'
-            "
-          >
-            <label
-              >{{ field.label }}
-              <sup style="color: red">{{
-                (field.is_required && "*") || ""
-              }}</sup></label
-            >
-            <label
-              style="
-                display: flex;
-                gap: 10px;
-                width: 100%;
-                align-items: start;
-                justify-content: start;
-              "
-              v-for="(opt, i) in field.options"
-              :for="field.label"
-              :key="i"
-            >
-              <input
-                :style="`width: 15px; height: 15px; accent-color: ${form.color}`"
-                :type="field.field_type"
-                :name="field.label"
-              />
-              {{ opt }}
-            </label>
-          </div>
-        </div>
-        <button @click="showAlert('Submit button clicked', 'success')" class="btn-form" :style="`background-color: ${form.color}`">
-          {{ form.submitText }}
-        </button>
-      </div>
+      <FormPreview :form-action="() => showAlert('Submit button clicked', 'success')" :form />
     </div>
   </div>
 </template>

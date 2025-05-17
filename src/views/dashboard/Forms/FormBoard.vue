@@ -2,24 +2,26 @@
 import { ref, onMounted, computed, onBeforeUnmount, reactive } from "vue";
 import AlertMessage from "@/components/AlertMessage.vue";
 import DashboardSkeleton from "@/components/DashboardSkeleton.vue";
-import BtnDbPry from "@/components/BtnDbPry.vue";
-import LeftDialogue from "@/components/LeftDialogue.vue";
-import formNull from "@/assets/images/formNull.png";
-import NullList from "@/components/NullList.vue";
 import apiMode from "../../../../apiMode";
-import { useRoute } from 'vue-router'
+import { useRoute } from "vue-router";
+import FormPreview from "@/components/Forms/FormPreview.vue";
+import * as XLSX from "xlsx";
 
 const api = apiMode;
 
 // declaration of value below
-const route = useRoute()
+const route = useRoute();
 const storeForm = ref({});
+const responses = ref([]);
+const hostname = ref("");
+const copyText = ref("Copy");
 let user = ref(null); // Use ref for reactive data
 let isLoading = ref(true); // Add loading state
 let isMessage = ref(false);
-let isAddForm = ref(false);
 let alertMes = ref("Successfully logged in");
 let alertType = ref("success");
+const formLink = ref("");
+const formUrlId = route.params.id;
 
 const getForm = async () => {
   const id = route.params.id;
@@ -27,16 +29,15 @@ const getForm = async () => {
   try {
     console.log(token);
 
-    const data = await api.get("/forms/"+id);
+    const data = await api.get("/forms/" + id);
     console.log("data", data.data);
-    storeForm.value = data.data
-    console.log("Form list", storeForm.value);
+    storeForm.value = data.data;
+
+    console.log("storeForm", storeForm.value);
   } catch (error) {
     console.error(error.response);
   }
 };
-
-
 
 const showAlert = (string1, string2) => {
   console.log("aleert");
@@ -51,11 +52,75 @@ const showAlert = (string1, string2) => {
   }, 5000);
 };
 
-const toggleDialogue = () => {
-  const link = document.createElement("a");
-  link.href = '/dashboard/forms/add-form';
-  link.click();
+const getResponses = async () => {
+  const id = formUrlId;
+  const token = localStorage.getItem("token");
+  try {
+    console.log(token);
+
+    const data = await api.get("/forms/" + id + "/responses", {
+      headers: { token: `${token}` },
+    });
+    const data_resp = data.data;
+
+    responses.value = data_resp.map((resp) => resp.response);
+    console.log("responses list", responses.value);
+  } catch (error) {
+    console.error(error.response);
+  }
 };
+
+const exportToJSON = () => {
+  const dataStr = JSON.stringify(responses.value, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "form-responses.json";
+  link.click();
+
+  URL.revokeObjectURL(url);
+};
+
+const exportToCSV = () => {
+  if (!responses.value.length) return;
+
+  const headers = Object.keys(responses.value[0]).join(",");
+  const rows = responses.value.map((res) =>
+    Object.values(res)
+      .map((val) => `"${String(val).replace(/"/g, '""')}"`)
+      .join(",")
+  );
+
+  const csvContent = [headers, ...rows].join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "form-responses.csv";
+  link.click();
+
+  URL.revokeObjectURL(url);
+};
+
+const exportToExcel = () => {
+  const worksheet = XLSX.utils.json_to_sheet(responses.value);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Responses");
+
+  XLSX.writeFile(workbook, "form-responses.xlsx");
+};
+
+const copyUrl = () => {
+  navigator.clipboard.writeText(formLink.value);
+  copyText.value = "copied"
+  
+  setInterval(()=>{
+    copyText.value = "copy"
+  },2000)
+}
 
 onMounted(async () => {
   try {
@@ -85,7 +150,10 @@ onMounted(async () => {
       localStorage.removeItem("duserdata");
       window.location.href = "/login";
     }
-    getForm()
+    getForm();
+    getResponses();
+    hostname.value = window.location.host;
+    formLink.value = hostname.value + "/forms/" + formUrlId;
     console.log("Our user", user.value.length);
   } catch (err) {
     // Redirect to login if unauthorized
@@ -121,21 +189,99 @@ onMounted(async () => {
     v-if="!isLoading"
   >
     <!-- enter your content below (slots) -->
-    <!-- no list found -->
-    <NullList
-      v-if="!storeForm && !isAddForm"
-      :nullImg="formNull"
-      :actionPermit="user.user_permission"
-      null-text="Create RSVP form for event, create a new intake form, create a feedback form and manage data formation."
-      null-btn-text="Create Form"
-      :toggleDialogueBtn="toggleDialogue"
-    />
 
     <!-- list available -->
-   
+    <div>
+      <div class="header">
+        <div class="copy">
+          <p>
+            {{ formLink }}
+          </p>
+
+          <button @click="copyUrl">
+            {{ copyText }}
+          </button>
+        </div>
+
+        <p>
+          Number of Responses: <strong>{{ responses.length }}</strong>
+        </p>
+        <div class="export-buttons">
+          <button @click="exportToJSON">Export JSON</button>
+          <button @click="exportToCSV">Export CSV</button>
+          <button @click="exportToExcel">Export Excel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="former">
+      <FormPreview :form="{ ...storeForm.form, fields: storeForm.fields }" />
+    </div>
+
     <!-- enter of content (slot) -->
   </DashboardSkeleton>
 </template>
 
 <style scoped>
+.copy {
+  padding: 10px;
+  border: 2px solid slateblue;
+  display: flex;
+  gap: 10px;
+  font-size: large;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+strong {
+  font-weight: 600;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  background-color: rgb(245, 247, 245);
+  padding: 15px 20px;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+  background-color: slateblue;
+  color: #fff;
+  padding: 10px 12px;
+  border-radius: 5px;
+}
+
+button:nth-child(2) {
+  background-color: darkcyan;
+}
+
+button:nth-child(3) {
+  background-color: green;
+}
+
+.former {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.copy p {
+  width: 300px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.copy button {
+  background-color: slateblue;
+}
 </style>

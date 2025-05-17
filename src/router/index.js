@@ -51,9 +51,14 @@ const router = createRouter({
       component: () => import('../views/dashboard/Staffs.vue'),
     },
     {
-      path: '/forms/:id',
+      path: '/forms/:id/settings',
       name: 'Form Board',
       component: () => import('../views/dashboard/Forms/FormBoard.vue')
+    },
+    {
+      path: '/forms/:id',
+      name: 'Form Filling',
+      component: () => import('../views/dashboard/Forms/FormFilling.vue')
     },
     {
       path: '/dashboard/forms/add-form',
