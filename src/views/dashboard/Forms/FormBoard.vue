@@ -6,6 +6,7 @@ import apiMode from "../../../../apiMode";
 import { useRoute } from "vue-router";
 import FormPreview from "@/components/Forms/FormPreview.vue";
 import * as XLSX from "xlsx";
+import ResponseTable from "@/components/Forms/ResponseTable.vue";
 
 const api = apiMode;
 
@@ -22,6 +23,24 @@ let alertMes = ref("Successfully logged in");
 let alertType = ref("success");
 const formLink = ref("");
 const formUrlId = route.params.id;
+const isPreview = ref(false);
+const prevBtn = ref("Show Form Preview");
+const sanitizedResp = ref({});
+
+const toggleFormPreveiw = () => {
+  isPreview.value = !isPreview.value;
+  if (isPreview) {
+    prevBtn.value = "Show Response Table";
+  } else {
+    prevBtn.value = "Show Form Preview";
+  }
+};
+
+const toggleDialogue = () => {
+  const link = document.createElement("a");
+  link.href = "/dashboard/forms/add-form";
+  link.click();
+};
 
 const getForm = async () => {
   const id = route.params.id;
@@ -70,24 +89,33 @@ const getResponses = async () => {
   }
 };
 
-const exportToJSON = () => {
+const exportToJSON = (title) => {
   const dataStr = JSON.stringify(responses.value, null, 2);
   const blob = new Blob([dataStr], { type: "application/json" });
   const url = URL.createObjectURL(blob);
 
   const link = document.createElement("a");
   link.href = url;
-  link.download = "form-responses.json";
+  link.download = `${title}.json`;
   link.click();
 
   URL.revokeObjectURL(url);
 };
 
-const exportToCSV = () => {
+const exportToCSV = (title) => {
   if (!responses.value.length) return;
 
-  const headers = Object.keys(responses.value[0]).join(",");
-  const rows = responses.value.map((res) =>
+  const sanitizedData = responses.value.map((entry) => {
+    const sanitized = {};
+    for (const key in entry) {
+      const value = entry[key];
+      sanitized[key] = Array.isArray(value) ? value.join(", ") : value;
+    }
+    return sanitized;
+  });
+
+  const headers = Object.keys(sanitizedData[0]).join(",");
+  const rows = sanitizedData.map((res) =>
     Object.values(res)
       .map((val) => `"${String(val).replace(/"/g, '""')}"`)
       .join(",")
@@ -99,28 +127,37 @@ const exportToCSV = () => {
 
   const link = document.createElement("a");
   link.href = url;
-  link.download = "form-responses.csv";
+  link.download = `${title}.csv`;
   link.click();
 
   URL.revokeObjectURL(url);
 };
 
-const exportToExcel = () => {
-  const worksheet = XLSX.utils.json_to_sheet(responses.value);
+const exportToExcel = (title) => {
+  const sanitizedData = responses.value.map((entry) => {
+    const sanitized = {};
+    for (const key in entry) {
+      const value = entry[key];
+      sanitized[key] = Array.isArray(value) ? value.join(", ") : value;
+    }
+    return sanitized;
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(sanitizedData);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Responses");
 
-  XLSX.writeFile(workbook, "form-responses.xlsx");
+  XLSX.writeFile(workbook, `${title}.xlsx`);
 };
 
 const copyUrl = () => {
   navigator.clipboard.writeText(formLink.value);
-  copyText.value = "copied"
-  
-  setInterval(()=>{
-    copyText.value = "copy"
-  },2000)
-}
+  copyText.value = "copied";
+
+  setInterval(() => {
+    copyText.value = "copy";
+  }, 2000);
+};
 
 onMounted(async () => {
   try {
@@ -203,19 +240,34 @@ onMounted(async () => {
           </button>
         </div>
 
-        <p>
-          Number of Responses: <strong>{{ responses.length }}</strong>
-        </p>
+        <button @click="toggleFormPreveiw">{{ prevBtn }}</button>
+
         <div class="export-buttons">
-          <button @click="exportToJSON">Export JSON</button>
-          <button @click="exportToCSV">Export CSV</button>
-          <button @click="exportToExcel">Export Excel</button>
+          <button @click="exportToJSON(storeForm.form.title)">
+            Export JSON
+          </button>
+          <button @click="exportToCSV(storeForm.form.title)">Export CSV</button>
+          <button @click="exportToExcel(storeForm.form.title)">
+            Export Excel
+          </button>
         </div>
       </div>
     </div>
 
-    <div class="former">
+    <div v-if="!isPreview && responses.length" class="response-container">
+      <h3 style="width: 100%; text-align: center">
+        {{ storeForm.form.title }}
+      </h3>
+
+      <ResponseTable :responses :form="storeForm.form" />
+    </div>
+
+    <div v-if="isPreview" class="former">
       <FormPreview :form="{ ...storeForm.form, fields: storeForm.fields }" />
+    </div>
+
+    <div v-if="!responses.length && !isPreview" class="response-container">
+      <h3 style="width: 100%; text-align: center; color: red;">No response yet</h3>
     </div>
 
     <!-- enter of content (slot) -->
@@ -223,6 +275,11 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.response-container {
+  width: 100%;
+  padding: 20px;
+}
+
 .copy {
   padding: 10px;
   border: 2px solid slateblue;

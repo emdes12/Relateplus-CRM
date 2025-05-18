@@ -63,6 +63,7 @@ const router = createRouter({
     {
       path: '/dashboard/forms/add-form',
       name: 'Forms Add',
+      // redirect: '/dashboard/form'
       component: () => import('../views/dashboard/Forms.vue')
     },
   ],

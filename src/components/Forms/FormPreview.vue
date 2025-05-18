@@ -107,7 +107,7 @@ watch(
         />
       </div>
 
-      <!-- If number -->
+      <!-- If date -->
       <div v-else-if="field.field_type === 'date'">
         <label
           >{{ field.label }}

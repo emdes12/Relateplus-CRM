@@ -83,7 +83,7 @@ const removeField = (index) => {
 };
 
 // Submit form to backend
-const submitForm = async () => {
+const submitForm = async () => { 
   const token = localStorage.getItem("token");
   
   try {
@@ -94,10 +94,11 @@ const submitForm = async () => {
     color: form.value.color,
     closingDate: form.value.closingDate,
     submitText: form.value.submitText,
+    completionMessage: form.value.completionMessage,
     fields: form.value.fields.map((f) => ({
       label: f.label,
       field_type: f.field_type,
-      is_required: f.required,
+      is_required: f.is_required,
       options: f.options,
     })),
   };
@@ -240,7 +241,7 @@ const showAlert = (string1, string2) => {
                     element.field_type
                   }})</strong
                 >
-                <label class="required-toggle">
+                <label v-if="element.field_type !== 'p-tag'" class="required-toggle">
                   <input type="checkbox" v-model="element.is_required" />
                   Required
                 </label>
