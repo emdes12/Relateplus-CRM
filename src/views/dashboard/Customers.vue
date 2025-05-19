@@ -353,7 +353,8 @@ const groupedClients = computed(() => {
       v-show="!list.length"
       :nullImg="customerNull"
       :actionPermit="user.user_permission"
-      null-text="Add your product, services, cartalogue. seemless management, manage product and pricing."
+      null-text="Start building your customer base by adding clients with their names, emails, and important details. Keep everything organized in one place."
+      tooltip-text="Manage client contacts and view customer history and interactions."
       null-btn-text="Add Customer"
       :toggleDialogueBtn="toggleDialogue"
     />

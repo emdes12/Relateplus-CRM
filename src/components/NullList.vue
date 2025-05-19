@@ -21,13 +21,17 @@ defineProps({
   actionPermit: {
     type: String,
     required: false,
+  },
+  tooltipText: {
+    type: String,
+    required: false,
   }
 });
 // console.log(actionPermit)
 </script>
 
 <template>
-  <div class="nulll">
+  <div class="nulll" :title="tooltipText">
     <img :src="nullImg" alt="no client yet" />
     <span>{{ nullText }}</span>
     <BtnDbPry :style="(actionPermit === 'admin') ? 'display: flex;' : 'display: none;'" :onClickToAct="toggleDialogueBtn" :msg="nullBtnText" />

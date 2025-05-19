@@ -171,7 +171,8 @@ const formatPhoneNumber = (phone) => {
       v-show="!list.length"
       :nullImg="calendarNull"
       :actionPermit="user.user_permission"
-      null-text="Assign and task, create event and management your calendar seamlessly."
+      null-text="Plan and assign tasks to team members. Keep track of deadlines, appointments, event, and meetings easily."
+      tooltip-text="Create tasks and appointments. Stay on top of your schedule."
       null-btn-text="Add to calendar"
       :toggleDialogueBtn="toggleDialogue"
     />

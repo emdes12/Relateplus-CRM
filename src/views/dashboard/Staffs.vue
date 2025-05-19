@@ -386,7 +386,8 @@ onMounted(async () => {
       v-show="!list.length"
       :nullImg="staffNull"
       :actionPermit="user.user_permission"
-      null-text="Create a add a new team member, Management Team members and Communicate with your team effectively"
+      null-text="Invite your team to collaborate. Assign tasks, track performance, and manage users from a central place."
+      tooltip-text="Add or manage team members and control access."
       null-btn-text="Add Team Member"
       :toggleDialogueBtn="toggleDialogue"
     />

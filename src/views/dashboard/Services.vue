@@ -176,7 +176,8 @@ const formatPhoneNumber = (phone) => {
       v-show="!list.length"
       :nullImg="serviceNull"
       :actionPermit="user.user_permission"
-      null-text="Add your product, services, cartalogue. seemless management, manage product and pricing."
+      null-text="Add your products or services. Seamlessly manage your offerings, pricing, and catalog in one place."
+      tooltip-text="Create and organize your services or product list."
       null-btn-text="Add Services"
       :null-btn-action="toggleDialogue"
     />

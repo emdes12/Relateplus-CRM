@@ -147,7 +147,8 @@ onMounted(async () => {
       v-if="!list.length && !isAddForm"
       :nullImg="formNull"
       :actionPermit="user.user_permission"
-      null-text="Create RSVP form for event, create a new intake form, create a feedback form and manage data formation."
+      null-text="Build custom forms for feedback, surveys, complaints, or registrations. Share them with customers and collect responses in real-time."
+      tooltip-text="Design and manage online forms for multiple use cases."
       null-btn-text="Create Form"
       :toggleDialogueBtn="toggleDialogue"
     />
