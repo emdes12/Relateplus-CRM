@@ -15,7 +15,7 @@ const responseCounts = ref({});
 </script>
 <template>
   <div class="form-container">
-    <div class="form-wrapper" v-for="form in list">
+    <div class="form-wrapper" :style="`border: .1px solid ${form.color}`" v-for="form in list">
       <router-link :to="`/forms/${form.form_id}/settings`">
         <div :style="`background-color: ${form.color}`">
           <img :src="formTemp" alt="" />
@@ -46,7 +46,7 @@ const responseCounts = ref({});
   border-radius: 10px;
   overflow: hidden;
   font-size: large;
-  cursor: pointer;
+  /* cursor: pointer; */
 }
 
 .form-wrapper:hover {

@@ -10,6 +10,7 @@ import { customersList } from "../data";
 import NullList from "@/components/NullList.vue";
 import ServiceForm from "@/components/ServiceForm.vue";
 import apiMode from "../../../apiMode";
+import CalendarForms from "@/components/CalendarForms.vue";
 
 const api = apiMode;
 
@@ -94,59 +95,11 @@ onMounted(async () => {
   }
 });
 
-// Group clients by initial and sort
-const groupedClients = computed(() => {
-  const groups = {};
-  list.value.forEach((client) => {
-    if (!groups[client.client_initial]) {
-      groups[client.client_initial] = [];
-    }
-    groups[client.client_initial].push(client);
-  });
-
-  // Sort each group alphabetically
-  Object.keys(groups).forEach((initial) => {
-    groups[initial].sort((a, b) => a.client_name.localeCompare(b.client_name));
-  });
-
-  // Sort the initials alphabetically
-  return Object.keys(groups)
-    .sort()
-    .reduce((acc, key) => {
-      acc[key] = groups[key];
-      return acc;
-    }, {});
-});
-
-// Format phone number with country code
-const formatPhoneNumber = (phone) => {
-  if (phone.startsWith("0")) {
-    return `+234 ${phone.substring(1)}`;
-  }
-  return phone;
-};
 </script>
 
 <template>
   <!-- still loading user data from server -->
   <div v-show="isLoading">Loading dashboard...</div>
-
-  <!-- Add form Dialogue -->
-  <LeftDialogue
-    :toggleDialogueBtn="toggleDialogue"
-    :actionClickSubmit="submitServiceForm"
-    v-show="isAddForm"
-  >
-    <ServiceForm
-      v-model:clientNameValue="serviceForm.name"
-      v-model:clientNumberValue="serviceForm.number"
-      v-model:clientEmailValue="serviceForm.email"
-      v-model:clientLabelValue="serviceForm.label"
-      v-model:clientLocationValue="serviceForm.location"
-      v-model:clientBdayValue="serviceForm.birthday"
-      v-model:clientNoteValue="serviceForm.note"
-    />
-  </LeftDialogue>
 
   <!-- Alert message for notifications -->
   <AlertMessage
@@ -168,7 +121,7 @@ const formatPhoneNumber = (phone) => {
     <!-- enter your content below (slots) -->
     <!-- no list found -->
     <NullList
-      v-show="!list.length"
+      v-show="!list.length && !isAddForm"
       :nullImg="calendarNull"
       :actionPermit="user.user_permission"
       null-text="Plan and assign tasks to team members. Keep track of deadlines, appointments, event, and meetings easily."
@@ -176,6 +129,10 @@ const formatPhoneNumber = (phone) => {
       null-btn-text="Add to calendar"
       :toggleDialogueBtn="toggleDialogue"
     />
+
+    <!-- add events to calendar -->
+    <!-- <AddEvent :toggleDialogue v-show="isAddForm"/> -->
+    <CalendarForms :toggleDialogue v-show="isAddForm" />
 
     <!-- list available -->
 

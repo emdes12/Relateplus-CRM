@@ -3,6 +3,13 @@ defineProps({
   responses: Object,
   form: Object
 })
+
+const sanitize = (objt) => {
+
+  const sanitized = Array.isArray(objt) ? objt.join(", ") : objt
+
+  return sanitized;
+}
 </script>
 
 <template>
@@ -12,7 +19,7 @@ defineProps({
       </div>
       <div class="value-container">
         <div class="grid-body" v-for="resp in responses">
-          <div :style="`border-color: ${form.color};`" v-for="key in Object.values(resp)">{{ key }}</div>
+          <div :style="`border-color: ${form.color};`" v-for="key in Object.values(resp)">{{ sanitize(key) }}</div>
         </div>
       </div>
   </div>

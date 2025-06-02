@@ -10,6 +10,7 @@ import { customersList } from "../data";
 import NullList from "@/components/NullList.vue";
 import ServiceForm from "@/components/ServiceForm.vue";
 import apiMode from "../../../apiMode";
+import ServicesList from "@/components/ServicesList.vue";
 
 const api = apiMode;
 
@@ -19,42 +20,158 @@ let user = ref(null); // Use ref for reactive data
 let isLoading = ref(true); // Add loading state
 let isMessage = ref(false);
 let isAddForm = ref(false);
+let isUpdateForm = ref(false);
 let alertMes = ref("Successfully logged in");
 let alertType = ref("success");
 
 let serviceForm = reactive({
-  // client Form values
   name: "",
-  number: "",
-  email: "",
-  label: "",
-  location: "",
-  birthday: "",
-  note: "",
+  price: 0,
+  description: "",
+  duration: "",
+  isBookable: false,
 });
 
-// Functions goes below
-const submitServiceForm = () => {
-  alert(serviceForm);
-  toggleDialogue();
-  showAlert("Form Added", "success");
+let updateServiceForm = {};
+let updateServiceValue = {};
+
+const resetServiceForm = () => {
+  serviceForm.value = {
+    name: "",
+    price: 0,
+    description: "",
+    duration: "",
+    isBookable: false,
+  };
 };
 
+// submit Functions goes below
+const submitServiceForm = async () => {
+  const token = localStorage.getItem("token");
+  try {
+    console.log("service form", serviceForm);
+    const adding = await api.post("/dashboard/services", serviceForm, {
+      headers: {
+        token: token,
+      },
+    });
+    getServices();
+    toggleDialogue();
+    showAlert("New Service Added", "success");
+    resetServiceForm();
+    console.log(adding.data);
+  } catch (error) {
+    console.log(error?.response?.data);
+  }
+};
+
+const submitUpdatedService = async () => {
+  if (
+    JSON.stringify(updateServiceForm) === JSON.stringify(updateServiceValue)
+  ) {
+    showAlert("No editing was made", "error");
+    toggleUpdateDialogue();
+    return;
+  }
+  
+  try {
+    const token = localStorage.getItem("token");
+    const { service_id } = updateServiceForm;
+    console.log(service_id);
+
+    await api.patch(`dashboard/services/${service_id}`, updateServiceForm, {
+      headers: { token },
+    });
+    console.log("3rd checkpoint");
+
+    getServices();
+    toggleUpdateDialogue();
+    showAlert(`${updateServiceForm.service_name} updated successfull`, "error");
+  } catch (error) {
+    console.error(error?.response?.data);
+    showAlert(`${error?.response?.data}`, "error");
+  }
+};
+
+// get all services from server
+const getServices = async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const resp = await api.get("/dashboard/services", {
+      headers: { token: token },
+    });
+
+    list.value = resp.data;
+    console.log("servList", resp?.data);
+  } catch (error) {
+    console.error(error?.response?.data);
+    // showAlert(error?.response?.data, "error")
+  }
+};
+
+// get single services from server
+const getService = async (id) => {
+  const token = localStorage.getItem("token");
+  try {
+    const resp = await api.get("/dashboard/services/" + id, {
+      headers: { token: token },
+    });
+
+    updateServiceForm = {
+      service_id: resp.data.service_id,
+      service_name: resp.data.service_name,
+      service_price: resp.data.service_price,
+      service_duration: resp.data.service_duration,
+      service_description: resp.data.service_description,
+      is_bookable: resp.data.is_bookable,
+    };
+    updateServiceValue = {
+      service_id: resp.data.service_id,
+      service_name: resp.data.service_name,
+      service_price: resp.data.service_price,
+      service_duration: resp.data.service_duration,
+      service_description: resp.data.service_description,
+      is_bookable: resp.data.is_bookable,
+    };
+    console.log(updateServiceForm === updateServiceValue);
+    // isUpdateForm.value = true
+    toggleUpdateDialogue();
+  } catch (error) {
+    console.error(error?.response?.data);
+    showAlert(error?.response?.data, "error")
+  }
+};
+
+// delete a single service
+const deleteService = async (id) =>{
+  const token = localStorage.getItem("token");
+  try {
+    const resp = await api.delete("/dashboard/services/" + id, {
+      headers: { token: token },
+    });
+    getServices()
+    showAlert("service Deleted", "success");
+  } catch (error) {
+    console.error(error?.response?.data);
+    showAlert(error?.response?.data, "error")
+  }
+}
+
 const showAlert = (string1, string2) => {
-  console.log("aleert");
   alertMes.value = string1;
   alertType.value = string2;
   isMessage.value = true;
-  console.log(alertMes.value);
-  console.log(isMessage.value);
   setTimeout(() => {
     isMessage.value = false;
-    console.log("alerted");
   }, 5000);
 };
 
 const toggleDialogue = () => {
   isAddForm.value = !isAddForm.value;
+};
+
+const toggleUpdateDialogue = () => {
+  isUpdateForm.value = !isUpdateForm.value;
 };
 
 onMounted(async () => {
@@ -86,6 +203,7 @@ onMounted(async () => {
       window.location.href = "/login";
     }
     console.log("Our user", user.value.length);
+    getServices();
   } catch (err) {
     // Redirect to login if unauthorized
     console.log(err);
@@ -97,59 +215,39 @@ onMounted(async () => {
     isLoading.value = false;
   }
 });
-
-// Group clients by initial and sort
-const groupedClients = computed(() => {
-  const groups = {};
-  list.value.forEach((client) => {
-    if (!groups[client.client_initial]) {
-      groups[client.client_initial] = [];
-    }
-    groups[client.client_initial].push(client);
-  });
-
-  // Sort each group alphabetically
-  Object.keys(groups).forEach((initial) => {
-    groups[initial].sort((a, b) => a.client_name.localeCompare(b.client_name));
-  });
-
-  // Sort the initials alphabetically
-  return Object.keys(groups)
-    .sort()
-    .reduce((acc, key) => {
-      acc[key] = groups[key];
-      return acc;
-    }, {});
-});
-
-// Format phone number with country code
-const formatPhoneNumber = (phone) => {
-  if (phone.startsWith("0")) {
-    return `+234 ${phone.substring(1)}`;
-  }
-  return phone;
-};
 </script>
 
 <template>
   <!-- still loading user data from server -->
   <div v-show="isLoading">Loading dashboard...</div>
 
-  <!-- Add form Dialogue -->
+  <!-- Add service form Dialogue -->
   <LeftDialogue
-    :onClickToShow="toggleDialogue"
+    :toggleDialogueBtn="toggleDialogue"
     :actionClickSubmit="submitServiceForm"
-    :close-dialogue="toggleDialogue"
     v-show="isAddForm"
   >
     <ServiceForm
-      v-model:clientNameValue="serviceForm.name"
-      v-model:clientNumberValue="serviceForm.number"
-      v-model:clientEmailValue="serviceForm.email"
-      v-model:clientLabelValue="serviceForm.label"
-      v-model:clientLocationValue="serviceForm.location"
-      v-model:clientBdayValue="serviceForm.birthday"
-      v-model:clientNoteValue="serviceForm.note"
+      v-model:serviceNameValue="serviceForm.name"
+      v-model:servicePriceValue="serviceForm.price"
+      v-model:serviceDurationValue="serviceForm.duration"
+      v-model:serviceDescriptionValue="serviceForm.description"
+      v-model:serviceIsBookable="serviceForm.isBookable"
+    />
+  </LeftDialogue>
+
+  <!-- update service form Dialogue -->
+  <LeftDialogue
+    :actionClickSubmit="submitUpdatedService"
+    :toggleDialogueBtn="toggleUpdateDialogue"
+    v-show="isUpdateForm"
+  >
+    <ServiceForm
+      v-model:serviceNameValue="updateServiceForm.service_name"
+      v-model:servicePriceValue="updateServiceForm.service_price"
+      v-model:serviceDurationValue="updateServiceForm.service_duration"
+      v-model:serviceDescriptionValue="updateServiceForm.service_description"
+      v-model:serviceIsBookable="updateServiceForm.is_bookable"
     />
   </LeftDialogue>
 
@@ -163,7 +261,7 @@ const formatPhoneNumber = (phone) => {
 
   <!-- Dashboard View -->
   <DashboardSkeleton
-    :onClickToShow="toggleDialogue"
+    :toggleDialogueBtn="toggleDialogue"
     :hBtnShow="list.length"
     hBtnMsg="Add Services"
     :user="user"
@@ -180,9 +278,12 @@ const formatPhoneNumber = (phone) => {
       tooltip-text="Create and organize your services or product list."
       null-btn-text="Add Services"
       :null-btn-action="toggleDialogue"
+      :toggleDialogueBtn="toggleDialogue"
     />
 
     <!-- list available -->
+
+    <ServicesList v-if="list" :list :deleteService :getService />
 
     <!-- enter of content (slot) -->
   </DashboardSkeleton>

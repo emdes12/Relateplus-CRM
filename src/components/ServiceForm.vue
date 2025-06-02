@@ -1,78 +1,84 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import FormInput from "./FormInput.vue";
-import axios from "axios";
-import BtnPry from "./BtnPry.vue";
-import apiMode from "../../apiMode";
 
 defineProps({
-    clientNameValue: String,
-    clientNumberValue: String,
-    clientEmailValue: String,
-    clientLabelValue: String,
-    clientLocationValue: String,
-    clientBdayValue: String,
-    clientNoteValue: String,
-})
+  serviceNameValue: String,
+  serviceDescriptionValue: String,
+  serviceDurationValue: String,
+  serviceIsBookable: Boolean,
+  servicePriceValue: Number,
+});
 
 const emit = defineEmits([
-  "update:clientNameValue",
-  "update:clientNumberValue",
-  "update:clientEmailValue",
-  "update:clientLabelValue",
-  "update:clientLocationValue",
-  "update:clientBdayValue",
-  "update:clientNoteValue",
+  "update:serviceNameValue",
+  "update:servicePriceValue",
+  "update:serviceIsBookable",
+  "update:serviceDurationValue",
+  "update:serviceDescriptionValue",
 ]);
+
+const checkTarget = (e) => {
+  console.log("targeting",e.target.checked);
+  console.log ("checking",serviceIsBookable.checked)
+};
 </script>
 <template>
   <div>
     <input
       type="text"
-      placeholder="Client Name:"
-      :value="clientNameValue"
-      @input="emit('update:clientNameValue', $event.target.value)"
+      placeholder="Enter services/product Name:"
+      :value="serviceNameValue"
+      @input="emit('update:serviceNameValue', $event.target.value)"
+      @click="emit('update:serviceNameValue', $event.target.value)"
     />
     <input
       type="number"
-      placeholder="+234:"
+      placeholder="0.00"
       min="1"
-      :value="clientNumberValue"
-      @input="emit('update:clientNumberValue', $event.target.value)"
+      :value="servicePriceValue"
+      @input="emit('update:servicePriceValue', $event.target.value)"
+      @click="emit('update:servicePriceValue', $event.target.value)"
     />
     <input
       type="email"
-      placeholder="Client Email:"
-      :value="clientEmailValue"
-      @input="emit('update:clientEmailValue', $event.target.value)"
+      placeholder="Duration:"
+      :value="serviceDurationValue"
+      @input="emit('update:serviceDurationValue', $event.target.value)"
+      @click="emit('update:serviceDurationValue', $event.target.value)"
     />
-    <input
-      type="text"
-      placeholder="Label/Group:"
-      :value="clientLabelValue"
-      @input="emit('update:clientLabelValue', $event.target.value)"
-    />
-    <input
-      type="text"
-      placeholder="Location:"
-      :value="clientLocationValue"
-      @input="emit('update:clientLocationValue', $event.target.value)"
-    />
-    <input
-      type="date"
-      placeholder="Client Name:"
-      :value="clientBdayValue"
-      @input="emit('update:clientBdayValue', $event.target.value)"
-    />
+    <label for="serviceIsBookable">
+      <input
+        type="checkbox"
+        name="serviceIsBookable"
+        id="serviceIsBookable"
+        :checked="serviceIsBookable"
+        @click="checkTarget"
+        @change="emit('update:serviceIsBookable', $event.target.checked)"
+      />
+      Bookable Online
+    </label>
     <textarea
-      name="clientNote"
-      :vale="clientNoteValue"
-      @input="emit('update:clientNoteValue', $event.target.value)"
-      placeholder="Client Note:"
+      name="serviceDescriptionValue"
+      :value="serviceDescriptionValue"
+      @input="emit('update:serviceDescriptionValue', $event.target.value)"
+      @click="emit('update:serviceDescriptionValue', $event.target.value)"
+      placeholder="Service Description:"
     ></textarea>
   </div>
 </template>
 <style scoped>
+label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: start;
+}
+
+label input {
+  width: 15px;
+  height: 15px;
+  accent-color: #f60;
+}
+
 div {
   display: flex;
   align-items: center;

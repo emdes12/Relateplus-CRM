@@ -80,8 +80,8 @@ const submitLogin = async () => {
 };
 
 const socialLogin = () => {
-  showAlert("Server Error Login Using your email and password", "error")
-}
+  showAlert("Server Error Login Using your email and password", "error");
+};
 
 const showPassword = () => {
   if (!isShowPassword.value) {
@@ -134,9 +134,15 @@ const showPassword = () => {
           <div class="auth-methods">
             <span>Continue with:</span>
             <div class="other-auth">
-              <span @click="socialLogin"><img src="../../assets/images/Google-auth.png" /></span>
-              <span @click="socialLogin"><img src="../../assets/images/Facebook-auth.png" /></span>
-              <span @click="socialLogin"><img src="../../assets/images/Apple-auth.png" /></span>
+              <span @click="socialLogin"
+                ><img src="../../assets/images/Google-auth.png"
+              /></span>
+              <span @click="socialLogin"
+                ><img src="../../assets/images/Facebook-auth.png"
+              /></span>
+              <span @click="socialLogin"
+                ><img src="../../assets/images/Apple-auth.png"
+              /></span>
             </div>
           </div>
           <p>
