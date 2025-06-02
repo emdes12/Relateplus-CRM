@@ -50,9 +50,9 @@ const switchToAppointment = () => {
         >
       </div>
       <div class="form-body">
-        <AddTask v-show="!isEventForm && !isAppointmentForm" />
-        <AddEvent v-show="isEventForm && !isAppointmentForm" />
-        <AddAppointment v-show="!isEventForm && isAppointmentForm" />
+        <AddTask :toggleDialogue v-if="!isEventForm && !isAppointmentForm" />
+        <AddEvent :toggleDialogue v-if="isEventForm && !isAppointmentForm" />
+        <AddAppointment :toggleDialogue v-if="!isEventForm && isAppointmentForm" />
       </div>
     </div>
   </div>
@@ -89,13 +89,12 @@ const switchToAppointment = () => {
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
-  /* padding: 2rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr;
+  /* padding: 2rem; */
+  display: flex;
+  flex-direction: column;
   align-items: start;
-  gap: 2rem; */
-  overflow: hidden;
+  gap: 0.2rem;
+  /* overflow: hidden; */
 }
 
 .calendar-types {
@@ -113,6 +112,7 @@ const switchToAppointment = () => {
   background-color: #e5e7eb;
   padding: 0.8rem;
 }
+
 .calendar-types span.active {
   background-color: #ffffff;
 }
@@ -122,6 +122,9 @@ const switchToAppointment = () => {
 }
 
 .form-body {
-    padding: 1rem;
+    padding: 2rem;
+    position: relative;
+    flex: 1;
+    width: 100%
 }
 </style>
