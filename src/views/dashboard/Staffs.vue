@@ -20,7 +20,6 @@ let isMessage = ref(false);
 let isAddForm = ref(false);
 let alertMes = ref("Successfully logged in");
 let alertType = ref("success");
-let chatAttachMessage = ref("");
 let alert_mess = ref("");
 let chatInputMessage = ref("");
 const selectedFile = ref(null); // for selected file to upload
@@ -110,6 +109,7 @@ const handleFileChange = (event) => {
   const validTypes = [
     "image/jpeg",
     "image/png",
+    "image/svg",
     "application/pdf",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   ];
@@ -297,6 +297,10 @@ const toggleDialogue = () => {
   isAddForm.value = !isAddForm.value;
 };
 
+const getStaff = (id) => {
+  alert(id)
+}
+
 onMounted(async () => {
   try {
     // Verify token and get user data in one request
@@ -396,7 +400,7 @@ onMounted(async () => {
 
     <div class="staffs-body" v-if="list.length">
       <div class="staffs-container">
-        <div class="staff-card" v-for="staff in list">
+        <div class="staff-card" v-for="staff in list" @click="getStaff(staff.staff_id)">
           <div
             class="staff-initial"
             :style="{ backgroundColor: staff.staff_color }"
@@ -458,7 +462,6 @@ onMounted(async () => {
                   type="file"
                   name="upload"
                   id="upload"
-                  :value="chatAttachMessage"
                   @change="handleFileChange"
                   accept=".jpg, .jpeg, .png, .pdf, .svg, .docx"
                   style="display: none"

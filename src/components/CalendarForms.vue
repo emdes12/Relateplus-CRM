@@ -75,12 +75,17 @@ const switchToAppointment = () => {
   display: grid;
   place-items: center;
   cursor: pointer;
-  background-color: #f00;
-  color: #fff;
+  color: #f00;
   font-size: large;
   position: absolute;
   top: 3px;
   right: 3px;
+  transition: all ease 0.5s;
+}
+
+.hide-form-container:hover {
+  background-color: #f00;
+  color: #fff;
 }
 
 .form-holders {

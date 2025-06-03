@@ -2,11 +2,39 @@
 import cameraIcon from "@/assets/icons/camera.svg";
 import BtnDbPry from "../BtnDbPry.vue";
 import BtnDbSec from "../BtnDbSec.vue";
+import { ref } from "vue";
+import apiMode from "../../../apiMode";
 
 defineProps({
   toggleDialogue: Function,
 });
 
+const api = apiMode
+const teamMembers = ref([]);
+const eventForm = ref({
+  event_title: "",
+  event_type: "",
+  event_description: "",
+  event_type: "",
+  event_priority: "",
+  assigned_to: [],
+  event_file: "",
+  event_rsvp_form: "",
+  event_date: "",
+});
+
+const getTeams = async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const teams = await api.get("/dashboard/staffs", { headers: { token } });
+    teamMembers.value = teams.data;
+    console.log("teams from addTask", teamMembers.value);
+  } catch (error) {
+    console.error(error?.response?.data);
+  }
+};
+
+getTeams();
 </script>
 
 <template>
@@ -16,47 +44,54 @@ defineProps({
     <!-- Side 1 of Form  -->
     <div>
       <div class="label-input">
-        <label for="task-title">Task Title</label>
+        <label for="event-title">Event Title</label>
         <input
           type="text"
-          name="task-title"
-          placeholder="Task Title"
-          id="task-title"
+          name="event-title"
+          v-model="eventForm.event_title"
+          placeholder="Event Title"
+          id="event-title"
         />
       </div>
 
       <div class="label-input">
-        <label for="task-client">Task Client</label>
-        <select name="task-client" id="task-client">
-          <option disabled selected>Select Option</option>
-          <option value="AdeTech">AdeTech</option>
-          <option value="Farm-Titan">Farm-Titan</option>
-          <option value="Mobim Fits">Mobim Fits</option>
+        <label for="event-type">Event Type</label>
+        <select
+          v-model="eventForm.event_type"
+          name="event-type"
+          id="event-type"
+        >
+          <option value="" disabled selected>Select a type</option>
+          <option value="meeting">Meeting</option>
+          <option value="call">Call</option>
+          <option value="follow-up">Follow-up</option>
+          <option value="demo">Demo</option>
+          <option value="webinar">Webinar</option>
+          <option value="others">Others</option>
         </select>
       </div>
 
       <div class="label-input">
-        <label for="task-description">Task Description</label>
+        <label for="event-description">Event Description</label>
         <textarea
-          name="task-description"
-          id="task-description"
+          name="event-description"
+          id="event-description"
+          v-model="eventForm.event_description"
           placeholder="Description"
         ></textarea>
       </div>
 
       <div class="label-input">
         <label>Assign</label>
-        <div class="mutli-select">
-          <input type="checkbox" name="Wale" id="Wale" />
-          <label for="Wale">Wale</label>
-        </div>
-        <div class="mutli-select">
-          <input type="checkbox" name="Azeez" id="Azeez" />
-          <label for="Azeez">Azeez</label>
-        </div>
-        <div class="mutli-select">
-          <input type="checkbox" name="Olakunle" id="Olakunle" />
-          <label for="Olakunle">Olakunle</label>
+        <div class="mutli-select" v-for="member in teamMembers">
+          <input
+            type="checkbox"
+            v-model="eventForm.assigned_to"
+            :value="member.staff_id"
+            :name="member.staff_id"
+            :id="member.staff_id"
+          />
+          <label :for="member.staff_id">{{ member.staff_name }}</label>
         </div>
       </div>
     </div>
@@ -65,12 +100,30 @@ defineProps({
     <div>
       <div class="label-input">
         <label for="task-attachment">
-          <img :src="cameraIcon" alt="camera device icon" />
-          Attach a File
+          <img
+            v-if="!eventForm.event_file.name"
+            :src="cameraIcon"
+            alt="camera device icon"
+          />
+          <p v-if="!eventForm.event_file.name">Attach a File</p>
+          <p
+            style="color: red"
+            v-if="fileuploadMessage && !eventForm.event_file.name"
+          >
+            {{ fileuploadMessage }}
+          </p>
+          <p
+            style="color: green; font-size: 1.2rem; font-family: inherit"
+            v-if="eventForm.event_file.name"
+          >
+            {{ eventForm.event_file.name }}
+          </p>
+          <p v-if="eventForm.event_file.name">Attached</p>
         </label>
         <input
           style="display: none"
           type="file"
+          @change="checkFileUpload"
           accept=".jpg, .jpeg, .png, .pdf, .docx"
           name="task-attachment"
           id="task-attachment"
@@ -78,13 +131,40 @@ defineProps({
       </div>
 
       <div class="label-input">
-        <label for="task-due-date">Task Due Date</label>
-        <input type="date" name="task-due-date" id="task-due-date" />
+        <label for="event-date">Event Date</label>
+        <input
+          type="date"
+          v-model="eventForm.event_date"
+          name="event-date"
+          id="event-date"
+        />
+      </div>
+
+      <div class="label-input">
+        <label for="task-priority">Event RSVP Form</label>
+        <select
+          v-model="eventForm.event_rsvp_form"
+          name="task-priority"
+          id="task-priroty"
+        >
+          <option value="" selected disabled>Select a form to link</option>
+          <option value="uajhu938rr0rn2yr238r28y3r2-2">Employment Form</option>
+          <option value="hafhof032urk9g8gjgt39tyt33tny8ty30t">
+            Out-office Event Webinar RSVP Form
+          </option>
+          <option value="nkeikf3r93rhrrr89erhr89jf94r2">
+            Client Acquisition form
+          </option>
+        </select>
       </div>
 
       <div class="label-input">
         <label for="task-priority">Task Priority Level</label>
-        <select name="task-priority" id="task-priroty">
+        <select
+          v-model="eventForm.event_priority"
+          name="task-priority"
+          id="task-priroty"
+        >
           <option value="low">Low</option>
           <option value="medium">Medium</option>
           <option value="high">High</option>
@@ -96,8 +176,8 @@ defineProps({
 
   <!-- action buttons -->
   <div class="actions-btn">
-    <BtnDbSec :onClickToCancel="toggleDialogueBtn" msg="Cancel" />
-    <BtnDbPry :onClickToAct="actionClickSubmit" msg="Add Event" />
+    <BtnDbSec :onClickToCancel="toggleDialogue" msg="Cancel" />
+    <BtnDbPry :onClickToAct="submitTask" msg="Add Task" />
   </div>
 </template>
 
@@ -135,10 +215,10 @@ h3 {
 .label-input > input,
 .label-input > select,
 .label-input > textarea {
-  border: 1px solid black;
+  border: 1px solid #8d8d8d;
   width: 100%;
   padding: 11px 26px;
-  color: #777676;
+  color: #8d8d8d;
   text-align: left;
   border-radius: 10px;
   font-family: "League Spartan";
@@ -150,7 +230,7 @@ h3 {
 
 label[for="task-attachment"] {
   border-radius: 10px;
-  border: 1px solid black;
+  border: 1px solid #8d8d8d;
   width: 100%;
   height: 200px;
   display: flex;

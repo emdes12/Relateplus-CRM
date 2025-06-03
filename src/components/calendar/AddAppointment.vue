@@ -135,10 +135,10 @@ h3 {
 .label-input > input,
 .label-input > select,
 .label-input > textarea {
-  border: 1px solid black;
+  border: 1px solid #8d8d8d;
   width: 100%;
   padding: 11px 26px;
-  color: #777676;
+  color: #8d8d8d;
   text-align: left;
   border-radius: 10px;
   font-family: "League Spartan";
@@ -150,7 +150,7 @@ h3 {
 
 label[for="task-attachment"] {
   border-radius: 10px;
-  border: 1px solid black;
+  border: 1px solid #8d8d8d;
   width: 100%;
   height: 200px;
   display: flex;
