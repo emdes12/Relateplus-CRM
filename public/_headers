@@ -1,0 +1,4 @@
+/*
+  X-Content-Type-Options: nosniff
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://apis.google.com; style-src 'self' 'unsafe-inline';
+  Referrer-Policy: strict-origin-when-cross-origin

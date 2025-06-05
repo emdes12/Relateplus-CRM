@@ -9,32 +9,81 @@ defineProps({
   toggleDialogue: Function,
 });
 
-const api = apiMode
+const api = apiMode;
 const teamMembers = ref([]);
+const formList = ref([]);
+const fileuploadMessage = ref("");
 const eventForm = ref({
   event_title: "",
   event_type: "",
   event_description: "",
   event_type: "",
-  event_priority: "",
+  event_venue: "",
   assigned_to: [],
   event_file: "",
   event_rsvp_form: "",
   event_date: "",
 });
 
+
+const createEvent = () => {
+  console.log(eventForm.value);
+};
+
 const getTeams = async () => {
   const token = localStorage.getItem("token");
   try {
     const teams = await api.get("/dashboard/staffs", { headers: { token } });
     teamMembers.value = teams.data;
-    console.log("teams from addTask", teamMembers.value);
+    console.log("teams from addEvent", teamMembers.value);
   } catch (error) {
     console.error(error?.response?.data);
   }
 };
 
+const getForms = async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const teams = await api.get("/forms", { headers: { token } });
+    formList.value = teams.data;
+    console.log("form from addEvent", formList.value);
+  } catch (error) {
+    console.error(error?.response?.data);
+  }
+};
+
+const checkFileUpload = (e) => {
+  const file = e.target.files[0];
+  eventForm.value.event_file = {};
+  if (!file) return;
+
+  // Validate file type
+  const validTypes = [
+    "image/jpeg",
+    "image/png",
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ];
+
+  if (!validTypes.includes(file.type)) {
+    fileuploadMessage.value =
+      "Invalid file type. Only JPG, PNG, PDF, and DOCX are allowed.";
+    return;
+  }
+
+  // Validate file size (5MB max)
+  if (file.size > 5 * 1024 * 1024) {
+    fileuploadMessage.value = "File size must be less than 5MB";
+    return;
+  }
+
+  eventForm.value.event_file = file;
+  console.table(eventForm.value.event_file);
+  console.log(fileuploadMessage.value);
+};
+
 getTeams();
+getForms();
 </script>
 
 <template>
@@ -82,7 +131,7 @@ getTeams();
       </div>
 
       <div class="label-input">
-        <label>Assign</label>
+        <label>Team Member involved</label>
         <div class="mutli-select" v-for="member in teamMembers">
           <input
             type="checkbox"
@@ -142,34 +191,30 @@ getTeams();
 
       <div class="label-input">
         <label for="task-priority">Event RSVP Form</label>
-        <select
-          v-model="eventForm.event_rsvp_form"
-          name="task-priority"
-          id="task-priroty"
-        >
-          <option value="" selected disabled>Select a form to link</option>
-          <option value="uajhu938rr0rn2yr238r28y3r2-2">Employment Form</option>
-          <option value="hafhof032urk9g8gjgt39tyt33tny8ty30t">
-            Out-office Event Webinar RSVP Form
-          </option>
-          <option value="nkeikf3r93rhrrr89erhr89jf94r2">
-            Client Acquisition form
-          </option>
-        </select>
+        <span>
+          <select
+            v-model="eventForm.event_rsvp_form"
+            name="task-priority"
+            id="task-priroty"
+          >
+            <option value="" selected disabled>Select a form to link</option>
+            <option v-if="formList" v-for="form in formList" :value="form.form_id">
+              {{ form.title }}
+            </option>
+            <option v-if="!formList" disabled>Create a form and come back</option>
+          </select>
+          <BtnDbPry bgcolor="#2c3e50" link="/dashboard/forms/add-form" msg="Create Form" />
+        </span>
       </div>
 
       <div class="label-input">
-        <label for="task-priority">Task Priority Level</label>
-        <select
-          v-model="eventForm.event_priority"
-          name="task-priority"
-          id="task-priroty"
-        >
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-          <option value="urgent">Urgent</option>
-        </select>
+        <label for="event-venue">Event Venue/Meeting Link</label>
+        <input
+          type="text"
+          v-model="eventForm.event_venue"
+          name="event-venue"
+          id="event-venue"
+        />
       </div>
     </div>
   </div>
@@ -177,9 +222,10 @@ getTeams();
   <!-- action buttons -->
   <div class="actions-btn">
     <BtnDbSec :onClickToCancel="toggleDialogue" msg="Cancel" />
-    <BtnDbPry :onClickToAct="submitTask" msg="Add Task" />
+    <BtnDbPry :onClickToAct="createEvent" msg="Create Event" />
   </div>
 </template>
+
 
 <style scoped>
 h3 {
@@ -197,6 +243,7 @@ h3 {
   height: calc(100% - 150px);
   position: relative;
   overflow: auto;
+  padding-bottom: 30px;
 }
 
 .form-inputs-container > div {
@@ -208,12 +255,27 @@ h3 {
   gap: 10px;
 }
 
+.label-input {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.label-input span {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 5px;
+}
+
 .label-input > label {
   font-size: 16px;
 }
 
 .label-input > input,
+.label-input span > input,
 .label-input > select,
+.label-input span > select,
 .label-input > textarea {
   border: 1px solid #8d8d8d;
   width: 100%;
@@ -223,6 +285,7 @@ h3 {
   border-radius: 10px;
   font-family: "League Spartan";
   font-size: 17px;
+  flex:1;
   font-style: normal;
   font-weight: 200;
   line-height: normal;

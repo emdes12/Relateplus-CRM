@@ -9,6 +9,11 @@ defineProps({
     type: String,
     required: false,
   },
+  bgcolor: {
+    type: String,
+    default: "#f60",
+    required: false,
+  },
   wdt: {
     type: String,
     required: false,
@@ -18,7 +23,8 @@ defineProps({
 </script>
 
 <template>
-  <div class="btn-primary"  @click="onClickToAct" :style="'width: ' + wdt">{{ msg }}</div>
+  <div v-show="!link" class="btn-primary"  @click="onClickToAct" :style="'width: ' + wdt+'; background:'+ bgcolor">{{ msg }}</div>
+  <RouterLink v-show="link" class="btn-primary" :style="'width: ' + wdt+'; background:'+ bgcolor" :to="link">{{ msg }}</RouterLink>
 </template>
 
 <style scoped>

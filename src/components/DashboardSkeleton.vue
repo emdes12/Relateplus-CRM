@@ -180,12 +180,12 @@ onBeforeUnmount(() => {
 
         <div class="sidebar-footer">
             <ul class="profile-options" v-show="isProfileOption">
-              <router-link to="/">
-                <li>Account</li>
+              <!-- <router-link to="/">
+                <li>Account Profile</li>
               </router-link>
-              <router-link to="/">
+              <router-link :to="`/dashboard/${user.user_id}/settings`">
                 <li>Settings</li>
-              </router-link>
+              </router-link> -->
               <span @click="logOutHandler">
                 <li>Log Out</li>
               </span>

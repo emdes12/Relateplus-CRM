@@ -66,6 +66,11 @@ const router = createRouter({
       // redirect: '/dashboard/form'
       component: () => import('../views/dashboard/Forms.vue')
     },
+    {
+      path: '/dashboard/:userid/settings',
+      name: 'Setting Page',
+      component: () => import('../views/dashboard/Settings.vue')
+    }
   ],
 })
 

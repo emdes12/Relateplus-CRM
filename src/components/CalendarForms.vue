@@ -99,7 +99,7 @@ const switchToAppointment = () => {
   flex-direction: column;
   align-items: start;
   gap: 0.2rem;
-  /* overflow: hidden; */
+  overflow: auto;
 }
 
 .calendar-types {
@@ -130,6 +130,7 @@ const switchToAppointment = () => {
     padding: 2rem;
     position: relative;
     flex: 1;
-    width: 100%
+    width: 100%;
+    min-height: 450px;
 }
 </style>

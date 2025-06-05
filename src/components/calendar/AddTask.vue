@@ -46,7 +46,7 @@ const getTeams = async () => {
   }
 };
 
-const submitTask = () => {
+const createTask = () => {
   console.log(taskForm.value);
 };
 
@@ -205,7 +205,7 @@ const checkFileUpload = (e) => {
   <!-- action buttons -->
   <div class="actions-btn">
     <BtnDbSec :onClickToCancel="toggleDialogue" msg="Cancel" />
-    <BtnDbPry :onClickToAct="submitTask" msg="Add Task" />
+    <BtnDbPry :onClickToAct="createTask" msg="Add Task" />
   </div>
 </template>
 

@@ -36,21 +36,20 @@ let updateServiceForm = {};
 let updateServiceValue = {};
 
 const resetServiceForm = () => {
-  serviceForm.value = {
+  serviceForm = ref({
     name: "",
     price: 0,
     description: "",
     duration: "",
     isBookable: false,
-  };
+  });
 };
 
 // submit Functions goes below
 const submitServiceForm = async () => {
   const token = localStorage.getItem("token");
   try {
-    console.log("service form", serviceForm);
-    const adding = await api.post("/dashboard/services", serviceForm, {
+    await api.post("/dashboard/services", serviceForm, {
       headers: {
         token: token,
       },
@@ -59,7 +58,7 @@ const submitServiceForm = async () => {
     toggleDialogue();
     showAlert("New Service Added", "success");
     resetServiceForm();
-    console.log(adding.data);
+    console.log("cleared?", serviceForm);
   } catch (error) {
     console.log(error?.response?.data);
   }
@@ -73,7 +72,7 @@ const submitUpdatedService = async () => {
     toggleUpdateDialogue();
     return;
   }
-  
+
   try {
     const token = localStorage.getItem("token");
     const { service_id } = updateServiceForm;
@@ -138,24 +137,24 @@ const getService = async (id) => {
     toggleUpdateDialogue();
   } catch (error) {
     console.error(error?.response?.data);
-    showAlert(error?.response?.data, "error")
+    showAlert(error?.response?.data, "error");
   }
 };
 
 // delete a single service
-const deleteService = async (id) =>{
+const deleteService = async (id) => {
   const token = localStorage.getItem("token");
   try {
     const resp = await api.delete("/dashboard/services/" + id, {
       headers: { token: token },
     });
-    getServices()
+    getServices();
     showAlert("service Deleted", "success");
   } catch (error) {
     console.error(error?.response?.data);
-    showAlert(error?.response?.data, "error")
+    showAlert(error?.response?.data, "error");
   }
-}
+};
 
 const showAlert = (string1, string2) => {
   alertMes.value = string1;
@@ -223,6 +222,7 @@ onMounted(async () => {
 
   <!-- Add service form Dialogue -->
   <LeftDialogue
+    dialogHeader="Add Product/Service"
     :toggleDialogueBtn="toggleDialogue"
     :actionClickSubmit="submitServiceForm"
     v-show="isAddForm"
@@ -277,7 +277,6 @@ onMounted(async () => {
       null-text="Add your products or services. Seamlessly manage your offerings, pricing, and catalog in one place."
       tooltip-text="Create and organize your services or product list."
       null-btn-text="Add Services"
-      :null-btn-action="toggleDialogue"
       :toggleDialogueBtn="toggleDialogue"
     />
 
