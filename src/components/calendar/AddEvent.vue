@@ -3,6 +3,7 @@ import cameraIcon from "@/assets/icons/camera.svg";
 import BtnDbPry from "../BtnDbPry.vue";
 import BtnDbSec from "../BtnDbSec.vue";
 import { ref } from "vue";
+import AlertMessage from "../AlertMessage.vue";
 import apiMode from "../../../apiMode";
 
 defineProps({
@@ -13,21 +14,102 @@ const api = apiMode;
 const teamMembers = ref([]);
 const formList = ref([]);
 const fileuploadMessage = ref("");
-const eventForm = ref({
+let eventForm = ref({
   event_title: "",
   event_type: "",
   event_description: "",
-  event_type: "",
+  event_end_date: "",
   event_venue: "",
   assigned_to: [],
   event_file: "",
   event_rsvp_form: "",
-  event_date: "",
+  event_start_date: "",
 });
 
+const isMessage = ref(false);
+const alertMes = ref("");
+const alertType = ref("");
 
-const createEvent = () => {
-  console.log(eventForm.value);
+const showAlert = (string1, string2) => {
+  console.log("aleert");
+  alertMes.value = string1;
+  alertType.value = string2;
+  isMessage.value = true;
+  console.log(alertMes.value);
+  console.log(isMessage.value);
+  setTimeout(() => {
+    isMessage.value = false;
+    console.log("alerted");
+  }, 5000);
+};
+
+const createEvent = async () => {
+  const today = new Date();
+  const startDay = new Date(eventForm.value.event_start_date);
+  const endDay = new Date(eventForm.value.event_end_date);
+  if (!eventForm.value.event_title) {
+    return showAlert("Title is required", "error");
+  }
+  if (!eventForm.value.assigned_to.length) {
+    return showAlert("You don't assign to any team member", "error");
+  }
+  if (!startDay || !endDay) {
+    return showAlert("Dates can't be empty", "error");
+  }
+  if (today > startDay) {
+    return showAlert("Starting date cant be in the past", "error");
+  }
+  if (startDay > endDay) {
+    return showAlert("Ending date cant be in the past", "error");
+  }
+  try {
+    const token = localStorage.getItem("token");
+
+    let fileAttached = eventForm.value.event_file;
+
+    let fileDetails;
+    let newField = { ...eventForm.value };
+    console.log({ fileAttached, newField });
+    if (fileAttached.name) {
+      const formData = new FormData();
+      formData.append("file", fileAttached);
+      const upload = await api.post("calendar/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          token: `${token}`,
+        },
+      });
+      fileDetails = upload.data;
+      console.log(upload);
+      newField = {
+        ...newField,
+        ...fileDetails,
+      };
+    }
+
+    console.log("error1", newField);
+    console.log(eventForm);
+    await api.post("/calendar/event", newField, {
+      headers: { token },
+    });
+
+    showAlert("New Event Created", "success");
+    window.location.href = "/dashboard/calendar";
+    eventForm = ref({
+      event_title: "",
+      event_type: "",
+      event_description: "",
+      event_end_date: "",
+      event_venue: "",
+      assigned_to: [],
+      event_file: "",
+      event_rsvp_form: "",
+      event_start_date: "",
+    });
+  } catch (error) {
+    console.log(error);
+    showAlert(`${error?.response?.data}`, "error");
+  }
 };
 
 const getTeams = async () => {
@@ -54,7 +136,6 @@ const getForms = async () => {
 
 const checkFileUpload = (e) => {
   const file = e.target.files[0];
-  eventForm.value.event_file = {};
   if (!file) return;
 
   // Validate file type
@@ -78,8 +159,6 @@ const checkFileUpload = (e) => {
   }
 
   eventForm.value.event_file = file;
-  console.table(eventForm.value.event_file);
-  console.log(fileuploadMessage.value);
 };
 
 getTeams();
@@ -87,6 +166,12 @@ getForms();
 </script>
 
 <template>
+  <AlertMessage
+    v-show="isMessage"
+    pageTitle="Customers"
+    :msg="alertMes"
+    :type="alertType"
+  />
   <h3>Create an Event</h3>
 
   <div class="form-inputs-container">
@@ -131,17 +216,23 @@ getForms();
       </div>
 
       <div class="label-input">
-        <label>Team Member involved</label>
-        <div class="mutli-select" v-for="member in teamMembers">
-          <input
-            type="checkbox"
-            v-model="eventForm.assigned_to"
-            :value="member.staff_id"
-            :name="member.staff_id"
-            :id="member.staff_id"
-          />
-          <label :for="member.staff_id">{{ member.staff_name }}</label>
-        </div>
+        <label for="event-start-date">Event Start Date</label>
+        <input
+          type="date"
+          v-model="eventForm.event_start_date"
+          name="event-start-date"
+          id="event-start-date"
+        />
+      </div>
+
+      <div class="label-input">
+        <label for="event-end-date">Event End Date</label>
+        <input
+          type="date"
+          v-model="eventForm.event_end_date"
+          name="event-end-date"
+          id="event-end-date"
+        />
       </div>
     </div>
 
@@ -180,16 +271,6 @@ getForms();
       </div>
 
       <div class="label-input">
-        <label for="event-date">Event Date</label>
-        <input
-          type="date"
-          v-model="eventForm.event_date"
-          name="event-date"
-          id="event-date"
-        />
-      </div>
-
-      <div class="label-input">
         <label for="task-priority">Event RSVP Form</label>
         <span>
           <select
@@ -198,12 +279,22 @@ getForms();
             id="task-priroty"
           >
             <option value="" selected disabled>Select a form to link</option>
-            <option v-if="formList" v-for="form in formList" :value="form.form_id">
+            <option
+              v-if="formList"
+              v-for="form in formList"
+              :value="form.form_id"
+            >
               {{ form.title }}
             </option>
-            <option v-if="!formList" disabled>Create a form and come back</option>
+            <option v-if="!formList" disabled>
+              Create a form and come back
+            </option>
           </select>
-          <BtnDbPry bgcolor="#2c3e50" link="/dashboard/forms/add-form" msg="Create Form" />
+          <BtnDbPry
+            bgcolor="#2c3e50"
+            link="/dashboard/forms/add-form"
+            msg="Create Form"
+          />
         </span>
       </div>
 
@@ -216,6 +307,20 @@ getForms();
           id="event-venue"
         />
       </div>
+
+      <div class="label-input">
+        <label>Asigned to</label>
+        <div class="mutli-select" v-for="member in teamMembers">
+          <input
+            type="checkbox"
+            v-model="eventForm.assigned_to"
+            :value="member.staff_id"
+            :name="member.staff_id"
+            :id="member.staff_id"
+          />
+          <label :for="member.staff_id">{{ member.staff_name }}</label>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -225,7 +330,6 @@ getForms();
     <BtnDbPry :onClickToAct="createEvent" msg="Create Event" />
   </div>
 </template>
-
 
 <style scoped>
 h3 {
@@ -280,12 +384,12 @@ h3 {
   border: 1px solid #8d8d8d;
   width: 100%;
   padding: 11px 26px;
-  color: #8d8d8d;
+  color: #000;
   text-align: left;
   border-radius: 10px;
   font-family: "League Spartan";
   font-size: 17px;
-  flex:1;
+  flex: 1;
   font-style: normal;
   font-weight: 200;
   line-height: normal;

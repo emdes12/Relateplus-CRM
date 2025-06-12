@@ -8,7 +8,7 @@ import LeftDialogue from "@/components/LeftDialogue.vue";
 import calendarNull from "@/assets/images/calendarNull.png";
 import { customersList } from "../data";
 import NullList from "@/components/NullList.vue";
-import ServiceForm from "@/components/ServiceForm.vue";
+import CalendarList from "@/components/CalendarList.vue";
 import apiMode from "../../../apiMode";
 import CalendarForms from "@/components/CalendarForms.vue";
 
@@ -35,10 +35,15 @@ let serviceForm = reactive({
 });
 
 // Functions goes below
-const submitServiceForm = () => {
-  alert(serviceForm);
-  toggleDialogue();
-  showAlert("Form Added", "success");
+const getCalendars = async () => {
+  const token = localStorage.getItem("token")
+  try {
+    const calendar = await api.get("/calendar", {headers: {token}});
+    list.value = calendar.data
+    console.log("calendar list",list.value)
+  } catch (error) {
+    console.error(error?.response?.data)
+  }
 };
 
 const showAlert = (string1, string2) => {
@@ -64,7 +69,7 @@ onMounted(async () => {
     const token = localStorage.getItem("token");
     let data = JSON.parse(localStorage.getItem("duserdata"));
     if (token) {
-      console.log("Welcome to Dashboard");
+      // console.log("Welcome to Dashboard");
       if (!data) {
         const res = await api.get("/dashboard", {
           headers: { token: `${token}` },
@@ -82,7 +87,8 @@ onMounted(async () => {
       localStorage.removeItem("duserdata");
       window.location.href = "/login";
     }
-    console.log("Our user", user.value.length);
+    getCalendars();
+    // console.log("Our user", user.value.length);
   } catch (err) {
     // Redirect to login if unauthorized
     console.log(err);
@@ -115,7 +121,7 @@ onMounted(async () => {
     :hBtnShow="list.length"
     hBtnMsg="Add to calendar"
     :user="user"
-    pageTitle="Calendar List"
+    pageTitle="Calendars"
     v-if="!isLoading"
   >
     <!-- enter your content below (slots) -->
@@ -134,6 +140,8 @@ onMounted(async () => {
     <!-- <AddEvent :toggleDialogue v-show="isAddForm"/> -->
     <CalendarForms :toggleDialogue v-show="isAddForm" />
 
+    <CalendarList v-show="list.length && !isAddForm" :list />
+
     <!-- list available -->
 
     <!-- enter of content (slot) -->
@@ -141,62 +149,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.initials {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  display: grid;
-  color: #ffffff;
-  place-items: center;
-}
 
-.contacts-container {
-  padding: 20px;
-  width: 100%;
-  margin: 0 auto;
-  font-family: Arial, sans-serif;
-}
-
-.section-header {
-  margin: 20px 20px 20px;
-  font-size: 1.8rem;
-  color: #333;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #eee;
-}
-
-.contacts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-  gap: 25px;
-  margin-bottom: 40px;
-}
-
-.contact-card {
-  border-radius: 34px;
-  border: 1px solid #e8e8e8;
-  padding: 40px;
-  padding-top: 80px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.contact-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-}
-
-.card-content {
-  color: #333;
-  display: flex;
-  gap: 15px;
-  flex-direction: column;
-}
-
-.card-content h3 {
-  margin: 0 0 10px 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
 
 .card-content p {
   margin: 5px 0;

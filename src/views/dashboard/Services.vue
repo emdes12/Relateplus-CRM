@@ -27,6 +27,7 @@ let alertType = ref("success");
 let serviceForm = reactive({
   name: "",
   price: 0,
+  currency: "USD",
   description: "",
   duration: "",
   isBookable: false,
@@ -39,6 +40,7 @@ const resetServiceForm = () => {
   serviceForm = ref({
     name: "",
     price: 0,
+    currency: "USD",
     description: "",
     duration: "",
     isBookable: false,
@@ -230,6 +232,7 @@ onMounted(async () => {
     <ServiceForm
       v-model:serviceNameValue="serviceForm.name"
       v-model:servicePriceValue="serviceForm.price"
+      v-model:servicePriceCurrency="serviceForm.currency"
       v-model:serviceDurationValue="serviceForm.duration"
       v-model:serviceDescriptionValue="serviceForm.description"
       v-model:serviceIsBookable="serviceForm.isBookable"

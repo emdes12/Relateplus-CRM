@@ -34,7 +34,7 @@ defineProps({
   <div class="nulll" :title="tooltipText">
     <img :src="nullImg" alt="no client yet" />
     <span>{{ nullText }}</span>
-    <BtnDbPry :style="(actionPermit === 'admin') ? 'display: flex;' : 'display: none;'" :onClickToAct="toggleDialogueBtn" :msg="nullBtnText" />
+    <BtnDbPry :style="(actionPermit !== 'admin') ? 'display: none;' : 'display: flex;'" :onClickToAct="toggleDialogueBtn" :msg="nullBtnText" />
   </div>
 </template>
 

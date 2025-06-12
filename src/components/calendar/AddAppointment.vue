@@ -2,6 +2,7 @@
 import cameraIcon from "@/assets/icons/camera.svg";
 import BtnDbPry from "../BtnDbPry.vue";
 import BtnDbSec from "../BtnDbSec.vue";
+import AlertMessage from "../AlertMessage.vue";
 import { ref } from "vue";
 import apiMode from "../../../apiMode";
 
@@ -13,7 +14,7 @@ const api = apiMode;
 const teamMembers = ref([]);
 const clientList = ref([]);
 const fileuploadMessage = ref("");
-const appointmentForm = ref({
+let appointmentForm = ref({
   appointment_title: "",
   appointment_type: "",
   appointment_description: "",
@@ -26,9 +27,89 @@ const appointmentForm = ref({
   appointment_end_date: "",
 });
 
+const isMessage = ref(false);
+const alertMes = ref("");
+const alertType = ref("");
 
-const createAppointment = () => {
-  console.log(appointmentForm.value);
+const showAlert = (string1, string2) => {
+  console.log("aleert");
+  alertMes.value = string1;
+  alertType.value = string2;
+  isMessage.value = true;
+  console.log(alertMes.value);
+  console.log(isMessage.value);
+  setTimeout(() => {
+    isMessage.value = false;
+    console.log("alerted");
+  }, 5000);
+};
+
+const createAppointment = async () => {
+  const today = new Date();
+  const startDay = new Date(appointmentForm.value.appointment_start_date);
+  const endDay = new Date(appointmentForm.value.appointment_end_date);
+  if (!appointmentForm.value.appointment_title) {
+    return showAlert("Title is required", "error");
+  }
+  if (!appointmentForm.value.assigned_to.length) {
+    return showAlert("You don't assign to any team member", "error");
+  }
+  if (!startDay || !endDay) {
+    return showAlert("Dates can't be empty", "error");
+  }
+  if (today > startDay) {
+    return showAlert("Starting date cant be in the past", "error");
+  }
+  if (startDay > endDay) {
+    return showAlert("Ending date cant be in the past", "error");
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+
+    let fileAttached = appointmentForm.value.appointment_file;
+
+    let fileDetails;
+    let newField = { ...appointmentForm.value };
+    console.log({ fileAttached, newField });
+    if (fileAttached.name) {
+      const formData = new FormData();
+      formData.append("file", fileAttached);
+      const upload = await api.post("calendar/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          token: `${token}`,
+        },
+      });
+      fileDetails = upload.data;
+      console.log(upload);
+      newField = {
+        ...newField,
+        ...fileDetails,
+      };
+    }
+    await api.post("/calendar/appointment", newField, {
+      headers: { token },
+    });
+
+    showAlert("New Appointment Created", "success");
+    appointmentForm = ref({
+      appointment_title: "",
+      appointment_type: "",
+      appointment_description: "",
+      appointment_type: "",
+      appointment_venue: "",
+      assigned_to: [],
+      appointment_file: "",
+      appointment_client: "",
+      appointment_start_date: "",
+      appointment_end_date: "",
+    });
+    window.location.href = "/dashboard/calendar";
+  } catch (error) {
+    console.log(error);
+    showAlert(`${error?.response?.data}`, "error");
+  }
 };
 
 const getTeams = async () => {
@@ -55,7 +136,7 @@ const getClient = async () => {
 
 const checkFileUpload = (e) => {
   const file = e.target.files[0];
-  appointmentForm.value.appointment_file = {};
+  appointmentForm.value.appointment_file = "";
   if (!file) return;
 
   // Validate file type
@@ -69,6 +150,7 @@ const checkFileUpload = (e) => {
   if (!validTypes.includes(file.type)) {
     fileuploadMessage.value =
       "Invalid file type. Only JPG, PNG, PDF, and DOCX are allowed.";
+
     return;
   }
 
@@ -79,23 +161,28 @@ const checkFileUpload = (e) => {
   }
 
   appointmentForm.value.appointment_file = file;
-  console.table(appointmentForm.value.appointment_file);
-  console.log(fileuploadMessage.value);
 };
 
 const createZoomMeeting = () => {
-  alert("please create one manually from Zoom")
-}
+  alert("please create one manually from Zoom");
+};
 
 const createGoogleMeet = () => {
-  alert("please create one manually from Google Calendar")
-}
+  alert("please create one manually from Google Calendar");
+};
 
 getTeams();
 getClient();
 </script>
 
 <template>
+  <AlertMessage
+    v-show="isMessage"
+    pageTitle="Customers"
+    :msg="alertMes"
+    :type="alertType"
+  />
+
   <h3>Create an Appointment</h3>
 
   <div class="form-inputs-container">
@@ -147,10 +234,16 @@ getClient();
           id="appointment-client"
         >
           <option value="" selected disabled>Appointment with who?</option>
-          <option v-if="clientList" v-for="client in clientList" :value="client.client_id">
+          <option
+            v-if="clientList"
+            v-for="client in clientList"
+            :value="client.client_id"
+          >
             {{ client.client_name }}
           </option>
-          <option v-if="!clientList" disabled>No Client on your contact list</option>
+          <option v-if="!clientList" disabled>
+            No Client on your contact list
+          </option>
         </select>
       </div>
 
@@ -232,8 +325,17 @@ getClient();
             name="appointment-venue"
             id="appointment-venue"
           />
-          <BtnDbPry bgcolor="#0b5cff" :onClickToAct="createZoomMeeting" msg="Use Zoom Meeting" />
-          <BtnDbPry bgcolor="#2a9b00" :onClickToAct="createGoogleMeet" msg="Use Google Calendar Link" />
+          <!-- <p>Create a meeting on Zoom or Google meet then add the link if you are using </p>
+          <BtnDbPry
+            bgcolor="#0b5cff"
+            :onClickToAct="createZoomMeeting"
+            msg="Use Zoom Meeting"
+          />
+          <BtnDbPry
+            bgcolor="#2a9b00"
+            :onClickToAct="createGoogleMeet"
+            msg="Use Google Calendar Link"
+          /> -->
         </span>
       </div>
     </div>
@@ -299,12 +401,12 @@ h3 {
   border: 1px solid #8d8d8d;
   width: 100%;
   padding: 11px 26px;
-  color: #8d8d8d;
+  color: #000000;
   text-align: left;
   border-radius: 10px;
   font-family: "League Spartan";
   font-size: 17px;
-  flex:1;
+  flex: 1;
   font-style: normal;
   font-weight: 200;
   line-height: normal;

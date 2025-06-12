@@ -28,7 +28,7 @@ defineProps({
 
             </div>
             <div class="level-3">
-                <b>Zoom Meetingg Token:</b>
+                <b>Zoom Meeting Token:</b>
                 <p>{{ user.zoom_access_token || "Not yet authorized" }}</p>
             </div>
         </div>

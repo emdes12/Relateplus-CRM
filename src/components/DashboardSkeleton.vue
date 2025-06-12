@@ -59,31 +59,31 @@ const windowWidth = ref(window.innerWidth);
 
 const navItems = [
   {
-    permission: "admin",
+    permission: "admin manager",
     path: "/dashboard",
     name: "Customer",
     icon: CustomersIcon,
   },
   {
-    permission: "admin",
+    permission: "admin manager",
     path: "/dashboard/services",
     name: "Services",
     icon: ServicesIcon,
   },
   {
-    permission: "admin staff",
+    permission: "admin manager staff",
     path: "/dashboard/calendar",
-    name: "Task/Calendar",
+    name: "Calendar",
     icon: CalendarIcon,
   },
   {
-    permission: "admin",
+    permission: "admin manager",
     path: "/dashboard/forms",
     name: "Forms",
     icon: FormsIcon,
   },
   {
-    permission: "admin staff",
+    permission: "admin manager staff",
     path: "/dashboard/teams",
     name: "Team members",
     icon: StaffsIcon,
@@ -150,8 +150,8 @@ onBeforeUnmount(() => {
             :msg="hBtnMsg"
             wdt="max-content"
           />
-          <img :src="SearchIcon" alt="search" />
-          <img :src="NotificationIcon" alt="notification" />
+          <!-- <img :src="SearchIcon" alt="search" />
+          <img :src="NotificationIcon" alt="notification" /> -->
         </div>
       </header>
 
@@ -278,7 +278,7 @@ onBeforeUnmount(() => {
   grid-area: sidebar;
   width: 250px;
   height: calc(100vh - 64px);
-  background-color: #2c3e50;
+  background-color: #1d3448;
   color: white;
   transition: all 0.3s ease;
   position: sticky;
@@ -358,7 +358,7 @@ onBeforeUnmount(() => {
 }
 
 li {
-  color: #2c3e50;
+  color: #1d3448;
   padding: 6px 12px;
   width: 100px;
 }
