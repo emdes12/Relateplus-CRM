@@ -16,6 +16,9 @@ export default defineConfig({
     },
   },
   server: {
+    headers: {
+      "Content-Security-Policy": "connect-src 'self' https://relate-server-production.up.railway.app",
+    },
     host: '0.0.0.0',
     port: 5173,
   },
