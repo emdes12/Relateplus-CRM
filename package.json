@@ -9,8 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.17",
+    "@fullcalendar/daygrid": "^6.1.17",
+    "axios": "^1.8.4",
+    "uuid": "^11.1.0",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "vuedraggable": "^4.1.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",

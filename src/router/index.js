@@ -25,6 +25,52 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/auth/LoginView.vue'),
     },
+    {
+      path: '/dashboard',
+      name: 'Dashboard',
+      component: () => import('../views/dashboard/Customers.vue'),
+    },
+    {
+      path: '/dashboard/services',
+      name: 'Services',
+      component: () => import('../views/dashboard/Services.vue'),
+    },
+    {
+      path: '/dashboard/calendar',
+      name: 'Task - Calendar',
+      component: () => import('../views/dashboard/Calendar.vue'),
+    },
+    {
+      path: '/dashboard/forms',
+      name: 'Forms',
+      component: () => import('../views/dashboard/Forms.vue'),
+    },
+    {
+      path: '/dashboard/teams',
+      name: 'Staffs',
+      component: () => import('../views/dashboard/Staffs.vue'),
+    },
+    {
+      path: '/forms/:id/settings',
+      name: 'Form Board',
+      component: () => import('../views/dashboard/Forms/FormBoard.vue')
+    },
+    {
+      path: '/forms/:id',
+      name: 'Form Filling',
+      component: () => import('../views/dashboard/Forms/FormFilling.vue')
+    },
+    {
+      path: '/dashboard/forms/add-form',
+      name: 'Forms Add',
+      // redirect: '/dashboard/form'
+      component: () => import('../views/dashboard/Forms.vue')
+    },
+    {
+      path: '/dashboard/:userid/settings',
+      name: 'Setting Page',
+      component: () => import('../views/dashboard/Settings.vue')
+    }
   ],
 })
 
